@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Portal ABV</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="login-body">
+
+    <div class="login-container">
+        <div class="login-header">
+            <div class="logo-placeholder">ABV</div>
+            <h2>Acesso Restrito</h2>
+            <p>Identifique-se para acessar o sistema.</p>
+        </div>
+
+        <form id="loginForm">
+            <div class="input-group">
+                <label for="usuario">Usuário</label>
+                <input type="text" id="usuario" placeholder="Ex: nome.sobrenome" required>
+            </div>
+            <div class="input-group">
+                <label for="senha">Senha</label>
+                <input type="password" id="senha" placeholder="••••••••" required>
+            </div>
+            
+            <button type="submit" class="btn-primary">Entrar</button>
+        </form>
+        
+        <div class="login-footer">
+            <a href="#">Esqueci minha senha</a> | <a href="#">Suporte Técnico</a>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
