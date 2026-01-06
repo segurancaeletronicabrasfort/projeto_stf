@@ -1,225 +1,36 @@
 /* =========================================
    1. RESET & GLOBAIS
    ========================================= */
-* { box-sizing: border-box; margin: 0; padding: 0; }
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
 :root {
-    --primary-color: #072e4b;       /* Azul Institucional Escuro */
-    --primary-hover: #0b3f69;       /* Azul um pouco mais claro */
-    --bg-light: #f1f5f9;            /* Fundo da Dashboard (Cinza Gelo) */
-    --white: #ffffff;
-    --text-dark: #1e293b;           /* Texto Principal */
-    --text-muted: #64748b;          /* Texto Secundário */
-    --border-radius: 16px;          /* Arredondamento padrão */
-    --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    --shadow-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --primary-color: #072e4b;       /* Azul Institucional Escuro */
+  --primary-hover: #0b3f69;       /* Azul um pouco mais claro */
+  --bg-light: #f1f5f9;            /* Fundo da Dashboard (Cinza Gelo) */
+  --white: #ffffff;
+  --text-dark: #1e293b;           /* Texto Principal */
+  --text-muted: #64748b;          /* Texto Secundário */
+  --border-radius: 16px;          /* Arredondamento padrão */
+  --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+                 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+                  0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
 
 body {
-    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
-    color: var(--text-dark);
-    /* O background base é definido por página */
+  font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+  color: var(--text-dark);
 }
 
 /* =========================================
-   2. PÁGINA DE LOGIN (index.html)
+   2. LOGIN (index.html)
    ========================================= */
 
-.login-wrapper {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-    background: radial-gradient(circle at top, #0b416d 0%, #072e4b 40%, #020b18 100%);
-}
-
-.login-card {
-    width: 100%;
-    max-width: 480px;
-    padding: 48px 40px;
-    border-radius: 24px;
-    background: var(--white);
-    color: var(--primary-color);
-    box-shadow: 
-        0 25px 50px -12px rgba(0, 0, 0, 0.5),
-        0 0 0 1px rgba(7, 46, 75, 0.05);
-    display: flex; flex-direction: column; gap: 20px;
-    animation: float-card 1s ease-out forwards;
-}
-
-@keyframes float-card { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-
-.login-card h1 { margin: 0; font-size: 2rem; font-weight: 700; color: var(--primary-color); }
-.login-card .login-subtitle { margin: 8px 0 24px; font-size: 0.95rem; color: var(--text-muted); line-height: 1.5; }
-
-.field { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
-.login-card label { font-size: 0.8rem; font-weight: 700; color: var(--primary-color); letter-spacing: 0.05em; text-transform: uppercase; }
-.login-card input {
-    width: 100%; padding: 14px 16px; border-radius: 12px;
-    border: 2px solid #e2e8f0; background: #f8fafc; color: #334155;
-    font-size: 1rem; outline: none; transition: all 0.2s ease;
-}
-.login-card input:focus { border-color: var(--primary-color); background: var(--white); box-shadow: 0 0 0 4px rgba(7, 46, 75, 0.1); }
-.login-card button {
-    margin-top: 12px; width: 100%; padding: 16px 0; border-radius: 99px; border: none;
-    background: var(--primary-color); color: var(--white);
-    font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
-    cursor: pointer; box-shadow: 0 10px 20px rgba(7, 46, 75, 0.25);
-    transition: all 0.2s ease;
-}
-.login-card button:hover { background: var(--primary-hover); transform: translateY(-2px); }
-
-/* =========================================
-   3. PÁGINA DASHBOARD (dashboard.html)
-   ========================================= */
-
-.dashboard-body {
-    background-color: var(--bg-light);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-}
-
-/* --- Navbar / Topbar --- */
-.navbar {
-    background-color: var(--primary-color);
-    color: var(--white);
-    height: 70px;
-    padding: 0 32px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    position: sticky; top: 0; z-index: 100;
-}
-
-.nav-brand {
-    font-family: 'Josefin Sans', sans-serif;
-    font-weight: 700;
-    font-size: 1.4rem;
-    letter-spacing: 0.1em;
-}
-
-.nav-user { display: flex; align-items: center; gap: 20px; font-size: 0.95rem; }
-
-.btn-logout {
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: var(--white);
-    padding: 8px 16px;
-    border-radius: 99px;
-    cursor: pointer;
-    font-size: 0.85rem;
-    transition: all 0.2s ease;
-    display: flex; align-items: center; gap: 8px;
-}
-.btn-logout:hover { background: rgba(255, 255, 255, 0.25); }
-
-/* --- Conteúdo Principal --- */
-.main-content {
-    width: 100%;
-    max-width: 1280px;
-    margin: 40px auto;
-    padding: 0 20px;
-    flex: 1;
-}
-
-.section-container { margin-bottom: 4rem; }
-
-/* Títulos das Seções */
-.section-container h3 {
-    font-size: 1.25rem;
-    color: var(--primary-color);
-    margin-bottom: 8px;
-    display: flex; align-items: center; gap: 10px;
-}
-.subtitle { color: var(--text-muted); margin-bottom: 24px; font-size: 0.95rem; }
-
-/* --- GRID DE CARDS (Solicita Fácil) --- */
-.cards-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 24px;
-}
-
-.card-action {
-    background: var(--white);
-    padding: 32px 24px;
-    border-radius: var(--border-radius);
-    text-align: center;
-    text-decoration: none;
-    color: var(--text-dark);
-    border: 1px solid rgba(226, 232, 240, 0.8);
-    box-shadow: var(--shadow-card);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
-    overflow: hidden;
-}
-
-/* Detalhe colorido no topo do card */
-.card-action::before {
-    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
-    background: linear-gradient(90deg, var(--primary-color), var(--primary-hover));
-    opacity: 0.8;
-}
-
-.card-action:hover {
-    transform: translateY(-8px);
-    box-shadow: var(--shadow-hover);
-    border-color: transparent;
-}
-
-.icon-box {
-    font-size: 2.5rem;
-    color: var(--primary-color);
-    margin-bottom: 16px;
-    opacity: 0.9;
-}
-
-.card-action h4 { font-size: 1.1rem; margin-bottom: 8px; color: var(--primary-color); }
-.card-action p { font-size: 0.9rem; color: var(--text-muted); line-height: 1.4; }
-
-/* --- ÁREA DO BI (Dashboard) --- */
-.header-split {
-    display: flex; justify-content: space-between; align-items: center;
-    margin-bottom: 16px;
-}
-
-.btn-secondary {
-    background: var(--white);
-    border: 1px solid #cbd5e1;
-    color: var(--text-dark);
-    padding: 8px 16px;
-    border-radius: 8px;
-    font-size: 0.9rem;
-    cursor: pointer;
-    display: flex; align-items: center; gap: 6px;
-    transition: background 0.2s;
-}
-.btn-secondary:hover { background: #f8fafc; border-color: #94a3b8; }
-
-.bi-container {
-    background: var(--white);
-    padding: 10px;
-    border-radius: var(--border-radius);
-    box-shadow: var(--shadow-card);
-    border: 1px solid #e2e8f0;
-    height: 650px; /* Altura do Painel */
-    overflow: hidden;
-}
-
-.bi-container iframe {
-    width: 100%; height: 100%; border-radius: 8px;
-}
-
-/* --- RESPONSIVIDADE --- */
-@media (max-width: 768px) {
-    .navbar { padding: 0 16px; height: 60px; }
-    .nav-user span { display: none; } /* Esconde o nome no mobile */
-    .login-card { padding: 32px 24px; }
-    .cards-grid { grid-template-columns: 1fr; }
-}
+/* Barra fixa com logo STF (superior esquerda) */
 .top-bar {
   position: fixed;
   top: 16px;
@@ -227,11 +38,521 @@ body {
   z-index: 10;
 }
 
-
-
-/* Imagem da logo */
 .logo-stf-img {
-  height: 75px;     
+  height: 75px;
   width: auto;
   display: block;
+}
+
+/* Wrapper do login */
+.login-wrapper {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: radial-gradient(circle at top, #0b416d 0%, #072e4b 40%, #020b18 100%);
+}
+
+/* Cartão de login */
+.login-card {
+  width: 100%;
+  max-width: 480px;
+  padding: 48px 40px;
+  border-radius: 24px;
+  background: var(--white);
+  color: var(--primary-color);
+  box-shadow:
+    0 25px 50px -12px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(7, 46, 75, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  animation: float-card 1s ease-out forwards;
+}
+
+@keyframes float-card {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.login-card h1 {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--primary-color);
+}
+
+.login-card .login-subtitle {
+  margin: 8px 0 24px;
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+/* Campos do formulário */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.login-card label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  transition: color 0.18s ease, transform 0.18s ease;
+}
+
+/* Animação leve no label quando o campo recebe foco */
+.field:focus-within label {
+  color: #0b416d;
+  transform: translateY(-1px);
+}
+
+.login-card input {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 2px solid #e2e8f0;
+  background: #f8fafc;
+  color: #334155;
+  font-size: 1rem;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.login-card input:focus {
+  border-color: var(--primary-color);
+  background: var(--white);
+  box-shadow: 0 0 0 4px rgba(7, 46, 75, 0.1);
+}
+
+/* Botão principal do login */
+.login-card button {
+  margin-top: 12px;
+  width: 100%;
+  padding: 16px 0;
+  border-radius: 99px;
+  border: none;
+  background: var(--primary-color);
+  color: var(--white);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 10px 20px rgba(7, 46, 75, 0.25);
+  transition: all 0.2s ease;
+}
+
+.login-card button:hover {
+  background: var(--primary-hover);
+  transform: translateY(-2px);
+}
+
+/* =========================================
+   3. DASHBOARD (dashboard.html)
+   ========================================= */
+
+.dashboard-body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+  background:
+    radial-gradient(circle at 0% 0%, rgba(11, 65, 109, 0.35) 0, transparent 55%),
+    radial-gradient(circle at 100% 0%, rgba(56, 189, 248, 0.22) 0, transparent 55%),
+    var(--bg-light);
+}
+
+/* Barra superior */
+.navbar {
+  background: linear-gradient(90deg, #072e4b, #0b416d);
+  color: var(--white);
+  height: 70px;
+  padding: 0 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.35);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+/* Marca do sistema */
+.nav-brand {
+  font-family: 'Josefin Sans', sans-serif;
+  font-weight: 700;
+  font-size: 1.1rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  padding: 8px 18px;
+  border-radius: 999px;
+  border: 1px solid rgba(248, 250, 252, 0.32);
+  background: rgba(15, 23, 42, 0.2);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+}
+
+.nav-user {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 0.9rem;
+}
+
+.nav-user span {
+  opacity: 0.9;
+}
+
+/* Botões de sair / config */
+.btn-logout {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: var(--white);
+  padding: 8px 16px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 0.82rem;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-logout i {
+  font-size: 0.9rem;
+}
+
+.btn-logout:hover {
+  background: rgba(255, 255, 255, 0.16);
+  transform: translateY(-1px);
+  box-shadow: 0 12px 25px rgba(15, 23, 42, 0.45);
+}
+
+/* Conteúdo principal */
+.main-content {
+  width: 100%;
+  max-width: 1280px;
+  margin: 56px auto 48px;   /* afasta da navbar e da base */
+  padding: 0 24px 40px;
+  flex: 1;
+}
+
+/* Container de cada bloco (Serviços / Indicadores) */
+.section-container {
+  margin-bottom: 4rem;                  /* distância entre seções */
+  padding: 32px 26px 28px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 20px 45px rgba(15, 23, 42, 0.16);
+  border: 1px solid rgba(148, 163, 184, 0.4);
+}
+
+/* Títulos das seções */
+.section-container h3 {
+  font-size: 1.2rem;
+  color: var(--primary-color);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.subtitle {
+  color: var(--text-muted);
+  margin-bottom: 26px;      /* respiro até os cards */
+  font-size: 0.9rem;
+}
+
+/* GRID de cards (Solicita Fácil) */
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 28px;                /* espaço entre cards */
+}
+
+/* Card de ação */
+.card-action {
+  background: var(--white);
+  padding: 32px 24px;
+  border-radius: 20px;
+  text-align: center;
+  text-decoration: none;
+  color: var(--text-dark);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  box-shadow: var(--shadow-card);
+  transition: all 0.26s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Barra colorida no topo do card */
+.card-action::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary-color), var(--primary-hover));
+  opacity: 0.8;
+}
+
+/* Halo suave no hover */
+.card-action::after {
+  content: '';
+  position: absolute;
+  inset: 30% -20% -40%;
+  background: radial-gradient(circle at top, rgba(15, 23, 42, 0.06), transparent 60%);
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.card-action:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-hover);
+  border-color: transparent;
+}
+
+.card-action:hover::after {
+  opacity: 1;
+}
+
+.icon-box {
+  font-size: 2.5rem;
+  color: var(--primary-color);
+  margin-bottom: 16px;
+  opacity: 0.9;
+}
+
+.card-action h4 {
+  font-size: 1.1rem;
+  margin-bottom: 8px;
+  color: var(--primary-color);
+}
+
+.card-action p {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+/* Cabeçalho da área de BI */
+.header-split {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+/* Botão secundário (Atualizar dados) */
+.btn-secondary {
+  background: var(--white);
+  border: 1px solid #cbd5e1;
+  color: var(--text-dark);
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.btn-secondary i {
+  font-size: 0.9rem;
+}
+
+.btn-secondary:hover {
+  background: #f8fafc;
+  border-color: #94a3b8;
+  transform: translateY(-1px);
+}
+
+/* Container do Power BI */
+.bi-container {
+  background: radial-gradient(circle at top left,
+              rgba(7, 46, 75, 0.06) 0,
+              #ffffff 52%);
+  padding: 12px;
+  border-radius: 20px;
+  box-shadow: var(--shadow-card);
+  border: 1px solid #e2e8f0;
+  height: 650px;
+  overflow: hidden;
+}
+
+.bi-container iframe {
+  width: 100%;
+  height: 100%;
+  border-radius: 14px;
+  border: none;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.35);
+}
+
+/* =========================================
+   4. MODAL DE CONFIGURAÇÕES
+   ========================================= */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.modal-content {
+  width: 100%;
+  max-width: 520px;
+  background: #ffffff;
+  border-radius: 24px;
+  box-shadow:
+    0 25px 60px rgba(15, 23, 42, 0.45),
+    0 0 0 1px rgba(148, 163, 184, 0.5);
+  padding: 22px 22px 24px;
+  animation: modal-enter 0.26s ease-out;
+}
+
+@keyframes modal-enter {
+  from { opacity: 0; transform: translateY(16px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.modal-header h3 {
+  font-size: 1.2rem;
+  color: var(--primary-color);
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 1.6rem;
+  line-height: 1;
+  cursor: pointer;
+  color: #64748b;
+  padding: 4px;
+  border-radius: 999px;
+  transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
+}
+
+.close-btn:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+  transform: translateY(-1px);
+}
+
+.modal-body {
+  padding-top: 4px;
+}
+
+.setting-section {
+  margin-bottom: 18px;
+}
+
+.setting-section h4 {
+  font-size: 0.95rem;
+  margin-bottom: 10px;
+  color: var(--primary-color);
+}
+
+/* Inputs dentro do modal */
+.setting-section input,
+.setting-section select {
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 2px solid #e2e8f0;
+  background: #f8fafc;
+  color: #334155;
+  font-size: 0.9rem;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.setting-section input:focus,
+.setting-section select:focus {
+  border-color: var(--primary-color);
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(7, 46, 75, 0.12);
+}
+
+/* Botão pequeno primário (Trocar senha / Criar usuário) */
+.btn-primary-small {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 18px;
+  border-radius: 999px;
+  border: none;
+  background: var(--primary-color);
+  color: #ffffff;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  margin-top: 4px;
+  box-shadow: 0 10px 20px rgba(7, 46, 75, 0.35);
+  transition: all 0.2s ease;
+}
+
+.btn-primary-small:hover {
+  background: var(--primary-hover);
+  transform: translateY(-1px);
+}
+
+/* =========================================
+   5. RESPONSIVIDADE
+   ========================================= */
+
+@media (max-width: 768px) {
+
+  .navbar {
+    padding: 0 16px;
+    height: 60px;
+  }
+
+  .nav-user span {
+    display: none;      /* Esconde o "Olá, Usuário" no mobile */
+  }
+
+  .login-card {
+    padding: 32px 24px;
+  }
+
+  .main-content {
+    margin: 40px auto 32px;
+    padding: 0 16px 32px;
+  }
+
+  .section-container {
+    padding: 24px 18px 22px;
+    margin-bottom: 2.5rem;
+  }
+
+  .cards-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .bi-container {
+    height: 480px;
+  }
 }
