@@ -1,6 +1,7 @@
 import logging
 from datetime import datetime, timedelta
 from typing import Optional
+from pydantic import BaseModel
 
 # Framework e Utilitários Web
 from fastapi import FastAPI, Depends, HTTPException, status, Request
@@ -28,6 +29,17 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30
 logging.basicConfig(level=logging.INFO, filename="auditoria_acessos.log", format="%(asctime)s - %(message)s")
 
 app = FastAPI(title="Portal ABV - STF Level")
+
+# --- SCHEMAS (Modelos de Entrada) ---
+class UserCreate(BaseModel):
+    username: str
+    password: str
+    full_name: str
+    role: str = "user" # 'admin' ou 'user'
+
+class UserPasswordUpdate(BaseModel):
+    old_password: str
+    new_password: str
 
 # --- ARQUIVOS ESTÁTICOS E TEMPLATES ---
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -128,3 +140,60 @@ async def login_for_access_token(
 async def read_users_me(current_user: User = Depends(get_current_user)):
     """Rota para o Frontend verificar se o token ainda é válido."""
     return {"username": current_user.username, "full_name": current_user.full_name, "role": current_user.role}
+
+# --- ROTAS DE GESTÃO DE USUÁRIOS ---
+
+@app.post("/users/create")
+async def create_user(
+    user_data: UserCreate, 
+    current_user: User = Depends(get_current_user), # Exige estar logado
+    db: Session = Depends(get_db)
+):
+    """
+    Cria novo usuário. Apenas ADMINS podem fazer isso.
+    """
+    # 1. Verifica Permissão
+    if current_user.role != "admin":
+        logging.warning(f"TENTATIVA NÃO AUTORIZADA: {current_user.username} tentou criar usuário.")
+        raise HTTPException(status_code=403, detail="Apenas administradores podem criar usuários.")
+
+    # 2. Verifica se usuário já existe
+    existing_user = db.query(User).filter(User.username == user_data.username).first()
+    if existing_user:
+        raise HTTPException(status_code=400, detail="Nome de usuário indisponível.")
+
+    # 3. Cria o usuário
+    hashed_password = pwd_context.hash(user_data.password)
+    new_user = User(
+        username=user_data.username,
+        full_name=user_data.full_name,
+        hashed_password=hashed_password,
+        role=user_data.role
+    )
+    
+    db.add(new_user)
+    db.commit()
+    
+    logging.info(f"USUÁRIO CRIADO: {user_data.username} criado por {current_user.username}")
+    return {"message": f"Usuário {user_data.username} criado com sucesso!"}
+
+
+@app.post("/users/me/password")
+async def change_password(
+    password_data: UserPasswordUpdate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Usuário logado troca a própria senha.
+    """
+    # 1. Verifica se a senha antiga está correta
+    if not verify_password(password_data.old_password, current_user.hashed_password):
+        raise HTTPException(status_code=400, detail="Senha atual incorreta.")
+    
+    # 2. Atualiza para a nova senha
+    current_user.hashed_password = pwd_context.hash(password_data.new_password)
+    db.commit()
+    
+    logging.info(f"SENHA ALTERADA: Usuário {current_user.username} alterou sua senha.")
+    return {"message": "Senha alterada com sucesso!"}
