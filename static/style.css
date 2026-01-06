@@ -24,25 +24,6 @@ body {
 /* =========================================
    2. PÁGINA DE LOGIN (index.html)
    ========================================= */
-.top-bar {
-    position: fixed;
-    top: 24px; left: 32px; z-index: 10;
-}
-
-.logo-stf {
-    font-family: "Josefin Sans", sans-serif;
-    font-weight: 700;
-    letter-spacing: 0.22em;
-    font-size: 1rem;
-    text-transform: uppercase;
-    color: #ffffff;
-    padding: 8px 20px;
-    border-radius: 999px;
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    background: rgba(7, 46, 75, 0.6);
-    backdrop-filter: blur(5px);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-}
 
 .login-wrapper {
     min-height: 100vh;
@@ -239,30 +220,18 @@ body {
     .login-card { padding: 32px 24px; }
     .cards-grid { grid-template-columns: 1fr; }
 }
-
-/* --- MODAL E FORMULÁRIOS INTERNOS --- */
-.modal-overlay {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.5); z-index: 1000;
-    display: flex; justify-content: center; align-items: center;
+.top-bar {
+  position: fixed;
+  top: 16px;
+  left: 24px;
+  z-index: 10;
 }
 
-.modal-content {
-    background: white; padding: 25px; border-radius: 12px;
-    width: 90%; max-width: 500px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-}
 
-.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-.close-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; }
 
-.setting-section input, .setting-section select {
-    width: 100%; padding: 10px; margin-bottom: 10px;
-    border: 1px solid #ddd; border-radius: 6px;
+/* Imagem da logo */
+.logo-stf-img {
+  height: 75px;     
+  width: auto;
+  display: block;
 }
-
-.btn-primary-small {
-    background: var(--primary-color); color: white; padding: 8px 16px;
-    border: none; border-radius: 6px; cursor: pointer; width: 100%;
-}
-.btn-primary-small:hover { background: var(--primary-hover); }
