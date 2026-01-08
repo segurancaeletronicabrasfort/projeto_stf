@@ -99,6 +99,40 @@
             </div>
         </div>
     </div>
+    
+    <div id="createUserModal" class="modal-overlay" style="display: none;">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3>Novo Usuário</h3>
+                <span class="close-modal" onclick="closeModal('createUserModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="adminCreateUserForm">
+                    <div class="field">
+                        <label>Nome Completo</label>
+                        <input type="text" id="createFullName" required placeholder="Ex: João da Silva">
+                    </div>
+                    <div class="field">
+                        <label>Usuário (Login)</label>
+                        <input type="text" id="createUsername" required placeholder="Ex: joao.silva">
+                    </div>
+                    <div class="field">
+                        <label>Senha Inicial</label>
+                        <input type="password" id="createPassword" required placeholder="******">
+                    </div>
+                    <div class="field">
+                        <label>Nível de Acesso</label>
+                        <select id="createRole">
+                            <option value="solicitante">Solicitante</option>
+                            <option value="supervisor">Supervisor</option>
+                            <option value="admin">Administrador</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn-save" style="background-color: #16a34a;">Criar Usuário</button>
+                </form>
+            </div>
+        </div>
+    </div>
 
     <!-- MODAL: CONFIRMAR EXCLUSÃO DE USUÁRIO -->
     <div id="confirmDeleteModal" class="modal-overlay" style="display: none;">

@@ -1,6 +1,6 @@
 __pycache__/
 *.pyc
 *.log
-portal_abv.db
-.env  <-- ADICIONE ISSO AQUI
+#aportal_abv.db
+#.env  <-- ADICIONE ISSO AQUI
 auditoria_acessos.log
