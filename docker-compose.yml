@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  # SERVIÇO 1: Sua Aplicação (Python/FastAPI)
+  web:
+    build: .
+    container_name: portal_abv_app
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    depends_on:
+      - db  # Espera o banco ligar antes de subir o site
+    restart: unless-stopped
+
+  # SERVIÇO 2: Banco de Dados (PostgreSQL)
+  db:
+    image: postgres:15-alpine
+    container_name: portal_abv_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data # Isso garante que os dados fiquem salvos mesmo se desligar o PC
+    environment:
+      - POSTGRES_USER=abv_user
+      - POSTGRES_PASSWORD=abv_senha_segura
+      - POSTGRES_DB=portal_abv
+    restart: unless-stopped
+
+volumes:
+  postgres_data:

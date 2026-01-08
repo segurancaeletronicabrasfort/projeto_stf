@@ -1,4 +1,6 @@
 import logging
+import os
+from dotenv import load_dotenv
 from datetime import datetime, timedelta
 from typing import Optional
 from pydantic import BaseModel
@@ -19,11 +21,13 @@ from sqlalchemy.orm import Session
 from database import get_db
 from models import User
 
-# --- CONFIGURAÇÕES DE SEGURANÇA (NÍVEL STF) ---
-# Em produção, isso deve vir de uma variável de ambiente (.env)
-SECRET_KEY = "segredo_abv_federal_2026_change_this_in_production"
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+# Carrega as variáveis do arquivo .env
+load_dotenv()
+
+# --- CONFIGURAÇÕES DE SEGURANÇA ---
+SECRET_KEY = os.getenv("SECRET_KEY", "chave_padrao_insegura")
+ALGORITHM = os.getenv("ALGORITHM", "HS256")
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 30))
 
 # Configuração de Logs
 logging.basicConfig(level=logging.INFO, filename="auditoria_acessos.log", format="%(asctime)s - %(message)s")
