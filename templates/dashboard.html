@@ -11,16 +11,18 @@
 <body class="dashboard-body">
 
     <nav class="navbar">
-        <div class="nav-brand">Portal de <strong>Solicitações</strong></div>
+        <div class="nav-brand">Portal <strong>ABV</strong></div>
         <div class="nav-user">
-        <span id="userDisplayName">Olá, Usuário</span>
+            <span id="userDisplayName">Olá, Usuário</span>
+            
             <button id="btnSettings" class="btn-logout" style="margin-right:5px;">
                 <i class="fas fa-cog"></i> Config
             </button>
-        <button id="btnLogout" class="btn-logout">
-        <i class="fas fa-sign-out-alt"></i> Sair
-    </button>
-</div>
+            
+            <button id="btnLogout" class="btn-logout">
+                <i class="fas fa-sign-out-alt"></i> Sair
+            </button>
+        </div>
     </nav>
 
     <div class="main-content">
@@ -56,7 +58,7 @@
             </div>
         </section>
 
-        <section class="section-container">
+        <section id="biSection" class="section-container">
             <div class="header-split">
                 <h3><i class="fas fa-chart-line"></i> Indicadores de Gestão</h3>
                 <button class="btn-secondary"><i class="fas fa-sync"></i> Atualizar Dados</button>
@@ -71,43 +73,68 @@
                     frameborder="0" 
                     allowFullScreen="true">
                 </iframe>
-                
-                </div>
+            </div>
         </section>
 
     </div>
+
     <div id="settingsModal" class="modal-overlay" style="display: none;">
-        <div class="modal-content">
+        <div class="modal-box">
             <div class="modal-header">
-                <h3>Gestão de Conta</h3>
-                <button onclick="closeModal('settingsModal')" class="close-btn">&times;</button>
+                <h3><i class="fas fa-cogs"></i> Gestão de Conta</h3>
+                <span class="close-modal" onclick="closeModal('settingsModal')">&times;</span>
             </div>
             
             <div class="modal-body">
-                <div class="setting-section">
-                    <h4>Trocar Minha Senha</h4>
+                
+                <div class="config-section">
+                    <h4>Alterar Minha Senha</h4>
                     <form id="changePasswordForm">
-                        <input type="password" id="oldPass" placeholder="Senha Atual" required>
-                        <input type="password" id="newPass" placeholder="Nova Senha" required>
-                        <button type="submit" class="btn-primary-small">Atualizar Senha</button>
+                        <div class="field">
+                            <label>Senha Atual</label>
+                            <input type="password" id="oldPass" required>
+                        </div>
+                        <div class="field">
+                            <label>Nova Senha</label>
+                            <input type="password" id="newPass" required>
+                        </div>
+                        <button type="submit" class="btn-save" style="width: 100%; margin-top: 10px;">Atualizar Senha</button>
                     </form>
                 </div>
 
-                <hr style="margin: 20px 0; border: 0; border-top: 1px solid #ddd;">
+                <hr style="margin: 20px 0; border: 0; border-top: 1px solid #eee;">
 
-                <div id="adminArea" class="setting-section" style="display: none;">
-                    <h4 style="color: var(--primary-color);">Painel Admin: Novo Usuário</h4>
-                    <form id="createUserForm">
-                        <input type="text" id="newUsername" placeholder="Usuário (ex: joao.silva)" required>
-                        <input type="text" id="newFullname" placeholder="Nome Completo" required>
-                        <input type="password" id="newUserPass" placeholder="Senha Inicial" required>
-                        <select id="newUserRole">
-                            <option value="user">Usuário Comum</option>
-                            <option value="admin">Administrador</option>
-                        </select>
-                        <button type="submit" class="btn-primary-small">Criar Usuário</button>
+                <div id="adminArea" style="display: none;">
+                    <h4 style="color: var(--primary-color);"><i class="fas fa-user-plus"></i> Criar Novo Usuário (Admin)</h4>
+                    <form id="createUserForm" style="background: #f8fafc; padding: 15px; border-radius: 8px;">
+                        <div class="field">
+                            <label>Nome Completo</label>
+                            <input type="text" id="newFullname" placeholder="Ex: Maria Silva" required>
+                        </div>
+                        <div class="field">
+                            <label>Usuário (Login)</label>
+                            <input type="text" id="newUsername" placeholder="Ex: maria.silva" required>
+                        </div>
+                        <div class="field">
+                            <label>Senha Inicial</label>
+                            <input type="password" id="newUserPass" required>
+                        </div>
+                        
+                        <div class="field">
+                            <label>Nível de Acesso</label>
+                            <select id="newUserRole" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc;">
+                                <option value="solicitante">Solicitante (Apenas Solicita Fácil)</option>
+                                <option value="supervisor">Supervisor (Vê Power BI)</option>
+                                <option value="admin">Administrador (Total)</option>
+                            </select>
+                        </div>
+                        
+                        <button type="submit" class="btn-save" style="background-color: #16a34a; width: 100%; margin-top: 10px;">
+                            <i class="fas fa-plus-circle"></i> Criar Usuário
+                        </button>
                     </form>
                 </div>
+
             </div>
         </div>
     </div>

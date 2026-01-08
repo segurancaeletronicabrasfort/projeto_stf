@@ -118,18 +118,47 @@ document.addEventListener("DOMContentLoaded", () => {
             if (savedName) userDisplay.innerText = `Olá, ${savedName}`;
         }
 
-        // --- 2.3 Verificar Permissão de Admin (RBAC) ---
+        // --- 2.3 Controle de Acesso (RBAC) ---
         try {
-            // Decodifica a parte do meio do JWT (Payload)
+            // Decodifica o Token
             const payload = JSON.parse(atob(token.split('.')[1]));
+            const role = payload.role; // 'admin', 'supervisor' ou 'solicitante'
             
-            // Se for Admin, mostra a área de criar usuário
-            if (payload.role === "admin") {
-                const adminArea = document.getElementById("adminArea");
-                if (adminArea) adminArea.style.display = "block";
+            // Elementos da tela
+            const adminArea = document.getElementById("adminArea");
+            const biSection = document.getElementById("biSection");
+
+            // Lógica de Visibilidade
+            if (role === 'admin') {
+                // ADMIN: Vê tudo
+                if(adminArea) adminArea.style.display = "block";
+                if(biSection) biSection.style.display = "block";
+            
+            } else if (role === 'supervisor') {
+                // SUPERVISOR: Vê BI, mas NÃO vê área de criar usuário
+                if(adminArea) adminArea.style.display = "none";
+                if(biSection) biSection.style.display = "block";
+            
+            } else {
+                // SOLICITANTE (ou qualquer outro): Só vê o básico
+                if(adminArea) adminArea.style.display = "none";
+                if(biSection) biSection.style.display = "none"; // Remove o BI da tela
             }
+
+            // Atualiza o texto de boas-vindas com o cargo
+            const userDisplay = document.querySelector("#userDisplayName");
+            if (userDisplay) {
+                const savedName = localStorage.getItem("userName");
+                // Capitaliza a primeira letra do cargo (ex: admin -> Admin)
+                const roleName = role.charAt(0).toUpperCase() + role.slice(1);
+                userDisplay.innerHTML = `Olá, ${savedName} <small>(${roleName})</small>`;
+            }
+
         } catch (e) {
-            console.error("Erro ao ler token:", e);
+            console.error("Erro ao processar permissões:", e);
+            // Por segurança, se der erro, esconde tudo sensível
+            if(document.getElementById("biSection")) document.getElementById("biSection").style.display = "none";
+            if(document.getElementById("adminArea")) document.getElementById("adminArea").style.display = "none";
         }
 
         // --- 2.4 Controle do Modal ---

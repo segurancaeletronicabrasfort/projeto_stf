@@ -39,7 +39,7 @@ class UserCreate(BaseModel):
     username: str
     password: str
     full_name: str
-    role: str = "user" # 'admin' ou 'user'
+    role: str = "solicitante" # Opções: 'admin', 'supervisor', 'solicitante'
 
 class UserPasswordUpdate(BaseModel):
     old_password: str
