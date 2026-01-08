@@ -98,6 +98,71 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+    // FUNÇÃO PARA CONTROLAR A EXIBIÇÃO DOS CARDS
+function setupCardsDisplay(role) {
+    const cardsContainer = document.getElementById("cardsContainer");
+    if (!cardsContainer) return;
+
+    // Pega todos os cards (links com a classe .card-action)
+    const cards = cardsContainer.querySelectorAll(".card-action");
+    const expandContainer = document.getElementById("expandContainer");
+    const btnExpand = document.getElementById("btnExpandCards");
+    const LIMIT = 4; // Limite de cards para Admin/Supervisor
+
+    // Lógica 1: Se for Solicitante, mostra tudo e esconde o botão
+    if (role === 'solicitante') {
+        cards.forEach(card => card.style.display = "block"); // Mostra todos
+        if(expandContainer) expandContainer.style.display = "none";
+        return;
+    }
+
+    // Lógica 2: Se for Admin ou Supervisor
+    // Verifica se tem mais cards que o limite
+    if (cards.length > LIMIT) {
+        
+        // Esconde os cards excedentes (do índice 4 em diante)
+        cards.forEach((card, index) => {
+            if (index >= LIMIT) {
+                card.classList.add("hidden-card"); // Usa CSS para esconder
+            }
+        });
+
+        // Mostra o botão de expandir
+        if(expandContainer) expandContainer.style.display = "block";
+
+        // Adiciona o evento de clique no botão
+        if (btnExpand) {
+            // Remove listeners antigos para evitar duplicação (cloneNode truque)
+            const newBtn = btnExpand.cloneNode(true);
+            btnExpand.parentNode.replaceChild(newBtn, btnExpand);
+
+            newBtn.addEventListener("click", () => {
+                const isExpanded = newBtn.getAttribute("data-expanded") === "true";
+
+                if (isExpanded) {
+                    // SE ESTÁ ABERTO -> FECHAR
+                    cards.forEach((card, index) => {
+                        if (index >= LIMIT) card.classList.add("hidden-card");
+                    });
+                    newBtn.innerHTML = '<i class="fas fa-chevron-down"></i> Ver todos os serviços';
+                    newBtn.setAttribute("data-expanded", "false");
+                    
+                    // Rola suavemente de volta para o topo dos cards
+                    cardsContainer.scrollIntoView({ behavior: 'smooth' });
+                } else {
+                    // SE ESTÁ FECHADO -> ABRIR
+                    cards.forEach(card => card.classList.remove("hidden-card"));
+                    newBtn.innerHTML = '<i class="fas fa-chevron-up"></i> Recolher serviços';
+                    newBtn.setAttribute("data-expanded", "true");
+                }
+            });
+        }
+    } else {
+        // Se tiver 4 ou menos cards, não precisa de botão
+        if(expandContainer) expandContainer.style.display = "none";
+    }
+}
+
     // =========================================================
     // 2. LÓGICA DA PÁGINA DE DASHBOARD
     // =========================================================
@@ -124,25 +189,23 @@ document.addEventListener("DOMContentLoaded", () => {
             const payload = JSON.parse(atob(token.split('.')[1]));
             const role = payload.role; // 'admin', 'supervisor' ou 'solicitante'
             
+            // --- NOVA CHAMADA: Configura os cards baseado no cargo ---
+            setupCardsDisplay(role); 
+
             // Elementos da tela
             const adminArea = document.getElementById("adminArea");
             const biSection = document.getElementById("biSection");
 
-            // Lógica de Visibilidade
+            // ... (o resto da lógica de AdminArea e BI continua igual) ...
             if (role === 'admin') {
-                // ADMIN: Vê tudo
                 if(adminArea) adminArea.style.display = "block";
                 if(biSection) biSection.style.display = "block";
-            
             } else if (role === 'supervisor') {
-                // SUPERVISOR: Vê BI, mas NÃO vê área de criar usuário
                 if(adminArea) adminArea.style.display = "none";
                 if(biSection) biSection.style.display = "block";
-            
             } else {
-                // SOLICITANTE (ou qualquer outro): Só vê o básico
                 if(adminArea) adminArea.style.display = "none";
-                if(biSection) biSection.style.display = "none"; // Remove o BI da tela
+                if(biSection) biSection.style.display = "none";
             }
 
             // Atualiza o texto de boas-vindas com o cargo

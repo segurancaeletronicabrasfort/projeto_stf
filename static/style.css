@@ -696,3 +696,18 @@ a:focus-visible {
     height: 480px;
   }
 }
+
+/* Classe utilitária para esconder cards extras via JS */
+.hidden-card {
+    display: none;
+}
+
+/* Animação suave ao aparecer (opcional) */
+.card-action {
+    animation: fadeInCard 0.5s ease;
+}
+
+@keyframes fadeInCard {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}

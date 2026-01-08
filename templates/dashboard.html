@@ -11,7 +11,7 @@
 <body class="dashboard-body">
 
     <nav class="navbar">
-        <div class="nav-brand">Portal de<strong>Solicitações</strong></div>
+        <div class="nav-brand">Portal de <strong>Solicitações</strong></div>
         <div class="nav-user">
             <span id="userDisplayName">Olá, Usuário</span>
             
@@ -31,30 +31,50 @@
             <h3><i class="fas fa-clipboard-list"></i> Serviços Rápidos (Solicita Fácil)</h3>
             <p class="subtitle">Acesso direto aos formulários do PerformanceLab.</p>
             
-            <div class="cards-grid">
-                <a href="https://pro.brasfort.com.br/v4/solicita_facil/formulario_resposta.php?token=e2e5096d574976e8f115a8f1e0ffb52b" target="_blank" class="card-action">
+            <div id="cardsContainer" class="cards-grid">
+                
+                <a href="https://pflab.top/CKV2SNVODI" target="_blank" class="card-action">
                     <div class="icon-box"><i class="fas fa-tools"></i></div>
                     <h4>Abertura de Chamado</h4>
                     <p>Manutenção predial e técnica.</p>
                 </a>
 
-                <a href="https://pro.brasfort.com.br/v4/solicita_facil/formulario_resposta.php?empresa=5c50b4df4b176845cd235b6a510c6903&etiqueta=80&site=276883" target="_blank" class="card-action">
+                <a href="https://pflab.top/BOQJRITEWR" target="_blank" class="card-action">
                     <div class="icon-box"><i class="fas fa-user-shield"></i></div>
                     <h4>Segurança Eletrônica</h4>
                     <p>Solicitação de imagens e acessos.</p>
                 </a>
 
-                <a href="https://pro.brasfort.com.br/v4/solicita_facil/formulario_resposta.php?token=6a0724f1d3e80fd5f761cacb7efe8593" target="_blank" class="card-action">
+                <a href="https://pflab.top/W7XZO8EPED" target="_blank" class="card-action">
                     <div class="icon-box"><i class="fas fa-laptop-medical"></i></div>
                     <h4>Suporte TI</h4>
                     <p>Problemas com hardware ou rede.</p>
                 </a>
                 
-                 <a href="https://pro.brasfort.com.br/v4/solicita_facil/formulario_resposta.php?token=65d90fc6d307590b14e9e1800d4e8eab" target="_blank" class="card-action">
+                <a href="https://pflab.top/BOQJRITEWR" target="_blank" class="card-action">
                     <div class="icon-box"><i class="fas fa-file-contract"></i></div>
                     <h4>Gestão de Contratos</h4>
                     <p>Acesso a documentos administrativos.</p>
                 </a>
+
+                <a href="#" class="card-action">
+                    <div class="icon-box"><i class="fas fa-car"></i></div>
+                    <h4>Frota</h4>
+                    <p>Reserva de veículos.</p>
+                </a>
+
+                <a href="#" class="card-action">
+                    <div class="icon-box"><i class="fas fa-users"></i></div>
+                    <h4>RH Online</h4>
+                    <p>Holerites e ponto.</p>
+                </a>
+
+            </div>
+
+            <div id="expandContainer" style="text-align: center; margin-top: 20px; display: none;">
+                <button id="btnExpandCards" class="btn-secondary" style="margin: 0 auto;">
+                    <i class="fas fa-chevron-down"></i> Ver todos os serviços
+                </button>
             </div>
         </section>
 
