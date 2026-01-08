@@ -1,8 +1,7 @@
 # 🏛️ Portal ABV - Sistema de Gestão Unificada
 
-> **Status:** 🟢 Em Produção (Versão 1.0)  
-> **Cliente:** ABV (Nível STF)  
-> **Desenvolvedor Líder:** Danilo Vinícius
+> **Status:** 🟢 Em Produção (Versão 1.0)   
+> **Desenvolvedores:** Rayssen Leonardo e Danilo Vinícius
 
 ## 📋 Visão Geral
 O **Portal ABV** é uma solução de alta governança desenvolvida para centralizar o acesso aos sistemas de segurança e manutenção predial. O sistema oferece autenticação segura, gestão de identidade (RBAC) e integração transparente com ferramentas de terceiros (PerformanceLab e Microsoft Power BI).
