@@ -111,12 +111,48 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        // --- 2.2 Exibir Nome do Usuário ---
-        const userDisplay = document.querySelector("#userDisplayName");
-        if (userDisplay) {
-            const savedName = localStorage.getItem("userName");
-            if (savedName) userDisplay.innerText = `Olá, ${savedName}`;
+       // --- 2.2 Exibir Nome do Usuário (usar full_name) ---
+const userDisplay = document.getElementById("userDisplayName");
+
+async function carregarNomeUsuario() {
+    if (!userDisplay) return;
+
+    try {
+        const resp = await fetch("/users/me", {
+            headers: {
+                "Authorization": `Bearer ${token}`
+            }
+        });
+
+        if (!resp.ok) {
+            throw new Error("Falha ao buscar /users/me");
         }
+
+        const user = await resp.json();
+
+        // Usa o nome completo se existir, senão cai pro username
+        const nomeParaMostrar = user.full_name || user.username || "Usuário";
+
+        userDisplay.textContent = `Olá, ${nomeParaMostrar}`;
+
+        // Guarda como fallback para próximos acessos
+        localStorage.setItem("userFullName", nomeParaMostrar);
+    } catch (err) {
+        console.error("Erro ao carregar nome:", err);
+
+        // Fallback: se der erro na API, usa algo salvo localmente
+        const fallback =
+            localStorage.getItem("userFullName") ||
+            localStorage.getItem("userName") ||
+            "Usuário";
+
+        userDisplay.textContent = `Olá, ${fallback}`;
+    }
+}
+
+// chama assim que a página carregar
+carregarNomeUsuario();
+
 
         // --- 2.3 Verificar Permissão de Admin (RBAC) ---
         try {
