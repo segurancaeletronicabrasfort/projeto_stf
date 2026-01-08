@@ -14,14 +14,48 @@ document.addEventListener("DOMContentLoaded", () => {
             window.location.href = "/dashboard";
         }
 
-        const loginForm = document.getElementById("loginForm");
-        
-        if(loginForm) {
+        const loginForm  = document.getElementById("loginForm");
+        const loginCard  = document.querySelector(".login-card");
+        const errorBox   = document.getElementById("loginError");
+
+        function showLoginError(msg) {
+            if (!errorBox) {
+                alert(msg);
+                return;
+            }
+            errorBox.textContent = msg;
+            errorBox.classList.add("visible");
+
+            // força reinício da animação do shake
+            if (loginCard) {
+                loginCard.classList.remove("shake");
+                void loginCard.offsetWidth; // reset animação
+                loginCard.classList.add("shake");
+            }
+        }
+
+        function clearLoginError() {
+            if (errorBox) errorBox.classList.remove("visible");
+        }
+
+        if (loginForm) {
+            const usuarioInput = document.getElementById("usuario");
+            const senhaInput   = document.getElementById("senha");
+
+            // Limpa erro ao digitar novamente
+            [usuarioInput, senhaInput].forEach((input) => {
+                if (input) {
+                    input.addEventListener("input", clearLoginError);
+                }
+            });
+
             loginForm.addEventListener("submit", async (e) => {
                 e.preventDefault();
                 
-                const usuario = document.getElementById("usuario").value;
-                const senha = document.getElementById("senha").value;
+                clearLoginError();
+
+                const usuario = usuarioInput.value.trim();
+                const senha   = senhaInput.value;
                 const btnSubmit = loginForm.querySelector("button");
                 const originalBtnText = btnSubmit.innerText;
 
@@ -31,13 +65,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 // Prepara dados para o formato OAuth2 (form-data)
                 const formData = new URLSearchParams();
-                formData.append('username', usuario);
-                formData.append('password', senha);
+                formData.append("username", usuario);
+                formData.append("password", senha);
 
                 try {
                     const response = await fetch("/token", {
                         method: "POST",
-                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        headers: { "Content-Type": "application/x-www-form-urlencoded" },
                         body: formData
                     });
 
@@ -50,13 +84,13 @@ document.addEventListener("DOMContentLoaded", () => {
                         
                         window.location.href = "/dashboard";
                     } else {
-                        alert("Acesso Negado: Usuário ou senha incorretos.");
+                        showLoginError("Acesso negado: usuário ou senha incorretos.");
                         btnSubmit.disabled = false;
                         btnSubmit.innerText = originalBtnText;
                     }
                 } catch (error) {
                     console.error("Erro:", error);
-                    alert("Erro de conexão com o servidor.");
+                    showLoginError("Erro de conexão com o servidor. Tente novamente em instantes.");
                     btnSubmit.disabled = false;
                     btnSubmit.innerText = originalBtnText;
                 }
@@ -78,7 +112,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         // --- 2.2 Exibir Nome do Usuário ---
-        const userDisplay = document.querySelector("#userDisplayName"); // Ajustado para o ID novo
+        const userDisplay = document.querySelector("#userDisplayName");
         if (userDisplay) {
             const savedName = localStorage.getItem("userName");
             if (savedName) userDisplay.innerText = `Olá, ${savedName}`;
@@ -90,9 +124,9 @@ document.addEventListener("DOMContentLoaded", () => {
             const payload = JSON.parse(atob(token.split('.')[1]));
             
             // Se for Admin, mostra a área de criar usuário
-            if (payload.role === 'admin') {
+            if (payload.role === "admin") {
                 const adminArea = document.getElementById("adminArea");
-                if(adminArea) adminArea.style.display = "block";
+                if (adminArea) adminArea.style.display = "block";
             }
         } catch (e) {
             console.error("Erro ao ler token:", e);
@@ -102,7 +136,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const btnSettings = document.getElementById("btnSettings");
         const modal = document.getElementById("settingsModal");
         
-        if(btnSettings && modal) {
+        if (btnSettings && modal) {
             btnSettings.addEventListener("click", () => {
                 modal.style.display = "flex";
             });
@@ -110,12 +144,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Função global para fechar modal (usada pelo botão X)
         window.closeModal = (id) => {
-            document.getElementById(id).style.display = "none";
-        }
+            const el = document.getElementById(id);
+            if (el) el.style.display = "none";
+        };
 
         // --- 2.5 Logout ---
         const btnLogout = document.getElementById("btnLogout");
-        if(btnLogout){
+        if (btnLogout){
             btnLogout.addEventListener("click", () => {
                 localStorage.removeItem("userToken");
                 localStorage.removeItem("userName");
@@ -125,7 +160,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // --- 2.6 Formulário: Trocar Senha ---
         const changePassForm = document.getElementById("changePasswordForm");
-        if(changePassForm) {
+        if (changePassForm) {
             changePassForm.addEventListener("submit", async (e) => {
                 e.preventDefault();
                 const oldPass = document.getElementById("oldPass").value;
@@ -157,7 +192,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // --- 2.7 Formulário: Criar Usuário (Apenas Admin) ---
         const createUserForm = document.getElementById("createUserForm");
-        if(createUserForm) {
+        if (createUserForm) {
             createUserForm.addEventListener("submit", async (e) => {
                 e.preventDefault();
                 
