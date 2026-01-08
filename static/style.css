@@ -800,60 +800,141 @@ a:focus-visible {
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* --- TABELA DE ADMIN --- */
+/* --- TABELA DE ADMIN (Gestão de Usuários) --- */
 .table-container {
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    margin-top: 18px;
+    background: radial-gradient(circle at top left,
+                rgba(15, 23, 42, 0.04),
+                #ffffff 55%);
+    border-radius: 20px;
+    box-shadow: var(--shadow-card);
+    border: 1px solid #e2e8f0;
+    padding: 16px 18px 10px;
     overflow-x: auto;
-    padding: 10px;
 }
 
+/* Tabela em si */
 .user-table {
     width: 100%;
     border-collapse: collapse;
+    min-width: 720px; /* evita “quebra” feia com poucas colunas */
+    font-size: 0.9rem;
 }
 
-.user-table th, .user-table td {
-    padding: 15px;
+.user-table thead th {
+    padding: 12px 14px;
     text-align: left;
     border-bottom: 1px solid #e2e8f0;
-}
-
-.user-table th {
-    background-color: #f8fafc;
+    background: linear-gradient(90deg, #f8fafc, #e5edf7);
     color: var(--primary-color);
     font-weight: 700;
     text-transform: uppercase;
-    font-size: 0.85rem;
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    white-space: nowrap;
 }
 
-.user-table tr:hover {
-    background-color: #f1f5f9;
+.user-table tbody td {
+    padding: 11px 14px;
+    border-bottom: 1px solid #e5e7eb;
+    color: #111827;
+    vertical-align: middle;
 }
 
-/* Badges de Cargo */
+/* listrado suave */
+.user-table tbody tr:nth-child(even) td {
+    background-color: #f9fafb;
+}
+
+.user-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* hover da linha */
+.user-table tbody tr:hover td {
+    background-color: #eff6ff;
+}
+
+/* Coluna de ações – alinhamento visual melhor */
+.user-table td:last-child {
+    white-space: nowrap;
+}
+
+/* --- BADGES DE CARGO --- */
 .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     padding: 4px 10px;
-    border-radius: 99px;
-    font-size: 0.75rem;
-    font-weight: bold;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 700;
     text-transform: uppercase;
+    letter-spacing: 0.06em;
 }
-.badge.admin { background: #fee2e2; color: #991b1b; }
-.badge.supervisor { background: #fef3c7; color: #92400e; }
-.badge.solicitante { background: #dcfce7; color: #166534; }
 
-/* Botões de Ação na Tabela */
+/* bolinha à esquerda do texto */
+.badge::before {
+    content: "";
+    width: 7px;
+    height: 7px;
+    border-radius: 999px;
+    background: currentColor;
+}
+
+/* mapeando pelos cargos que já existem no backend */
+.badge.admin {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.badge.supervisor {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.badge.solicitante {
+    background: #dcfce7;
+    color: #166534;
+}
+
+/* --- BOTÕES DE AÇÃO NA TABELA --- */
 .btn-icon {
     border: none;
     background: transparent;
     cursor: pointer;
-    font-size: 1.1rem;
-    padding: 5px;
-    margin-right: 5px;
-    transition: transform 0.2s;
+    font-size: 1rem;
+    margin-right: 6px;
+    padding: 6px;
+    border-radius: 999px;
+    transition:
+        transform 0.18s ease,
+        box-shadow 0.18s ease,
+        background-color 0.18s ease,
+        color 0.18s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
-.btn-icon.edit { color: #3b82f6; }
-.btn-icon.delete { color: #ef4444; }
-.btn-icon:hover { transform: scale(1.2); }
+
+/* editar */
+.btn-icon.edit {
+    color: #2563eb;
+}
+
+/* excluir */
+.btn-icon.delete {
+    color: #ef4444;
+}
+
+/* hover geral */
+.btn-icon:hover {
+    transform: translateY(-1px) scale(1.05);
+    background: rgba(15, 23, 42, 0.04);
+    box-shadow: 0 3px 10px rgba(15, 23, 42, 0.12);
+}
+
+/* um pouco mais de ênfase nos ícones */
+.btn-icon i {
+    pointer-events: none;
+}

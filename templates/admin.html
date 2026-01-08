@@ -76,6 +76,34 @@
             </div>
         </div>
     </div>
+<!-- MODAL: Confirmar Exclusão -->
+<div id="confirmDeleteModal" class="modal-overlay" style="display: none;">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3>Confirmar exclusão</h3>
+            <span class="close-modal" onclick="closeModal('confirmDeleteModal')">&times;</span>
+        </div>
+
+        <div class="modal-body">
+            <p id="confirmDeleteText">
+                Tem certeza que deseja excluir este usuário? Essa ação não poderá ser desfeita.
+            </p>
+
+            <div class="modal-footer">
+                <button type="button"
+                        class="btn-modal btn-cancel"
+                        id="cancelDeleteBtn">
+                    Cancelar
+                </button>
+                <button type="button"
+                        class="btn-modal btn-danger"
+                        id="confirmDeleteBtn">
+                    Excluir usuário
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 
     <script src="/static/admin_script.js"></script>
 </body>
