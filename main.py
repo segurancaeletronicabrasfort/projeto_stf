@@ -41,6 +41,11 @@ class UserCreate(BaseModel):
     full_name: str
     role: str = "solicitante" # Opções: 'admin', 'supervisor', 'solicitante'
 
+class UserUpdate(BaseModel):
+    full_name: Optional[str] = None
+    role: Optional[str] = None
+    password: Optional[str] = None
+
 class UserPasswordUpdate(BaseModel):
     old_password: str
     new_password: str
@@ -201,3 +206,73 @@ async def change_password(
     
     logging.info(f"SENHA ALTERADA: Usuário {current_user.username} alterou sua senha.")
     return {"message": "Senha alterada com sucesso!"}
+
+# --- ROTAS DA PÁGINA ADMIN (CRUD COMPLETO) ---
+
+@app.get("/admin_panel")
+async def read_admin_panel(request: Request):
+    """Serve a página HTML do Admin."""
+    return templates.TemplateResponse("admin.html", {"request": request})
+
+@app.get("/users")
+async def read_all_users(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Lista TODOS os usuários (Apenas Admin vê)."""
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Acesso negado.")
+    # Retorna todos os usuários (sem a senha hashada por segurança visual)
+    users = db.query(User).all()
+    return users
+
+@app.put("/users/{user_id}")
+async def update_user(
+    user_id: int,
+    user_update: UserUpdate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Atualiza dados de um usuário específico."""
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Acesso negado.")
+    
+    db_user = db.query(User).filter(User.id == user_id).first()
+    if not db_user:
+        raise HTTPException(status_code=404, detail="Usuário não encontrado")
+
+    # Atualiza campos se foram enviados
+    if user_update.full_name:
+        db_user.full_name = user_update.full_name
+    if user_update.role:
+        db_user.role = user_update.role
+    if user_update.password:
+        db_user.hashed_password = pwd_context.hash(user_update.password)
+    
+    db.commit()
+    logging.info(f"ADMIN {current_user.username} editou usuário {db_user.username}")
+    return {"message": "Usuário atualizado com sucesso"}
+
+@app.delete("/users/{user_id}")
+async def delete_user(
+    user_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Deleta um usuário."""
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Acesso negado.")
+    
+    # Impede o admin de se auto-deletar
+    if current_user.id == user_id:
+        raise HTTPException(status_code=400, detail="Você não pode deletar a si mesmo.")
+
+    db_user = db.query(User).filter(User.id == user_id).first()
+    if not db_user:
+        raise HTTPException(status_code=404, detail="Usuário não encontrado")
+    
+    db.delete(db_user)
+    db.commit()
+    
+    logging.info(f"ADMIN {current_user.username} deletou usuário {db_user.username}")
+    return {"message": "Usuário deletado com sucesso"}

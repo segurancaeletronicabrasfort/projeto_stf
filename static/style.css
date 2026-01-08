@@ -711,3 +711,61 @@ a:focus-visible {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
 }
+
+/* --- TABELA DE ADMIN --- */
+.table-container {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    overflow-x: auto;
+    padding: 10px;
+}
+
+.user-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.user-table th, .user-table td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.user-table th {
+    background-color: #f8fafc;
+    color: var(--primary-color);
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+}
+
+.user-table tr:hover {
+    background-color: #f1f5f9;
+}
+
+/* Badges de Cargo */
+.badge {
+    padding: 4px 10px;
+    border-radius: 99px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+.badge.admin { background: #fee2e2; color: #991b1b; }
+.badge.supervisor { background: #fef3c7; color: #92400e; }
+.badge.solicitante { background: #dcfce7; color: #166534; }
+
+/* Botões de Ação na Tabela */
+.btn-icon {
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 1.1rem;
+    padding: 5px;
+    margin-right: 5px;
+    transition: transform 0.2s;
+}
+.btn-icon.edit { color: #3b82f6; }
+.btn-icon.delete { color: #ef4444; }
+.btn-icon:hover { transform: scale(1.2); }
