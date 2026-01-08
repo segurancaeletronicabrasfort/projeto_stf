@@ -49,15 +49,6 @@ a:focus-visible {
   top: 16px;
   left: 24px;
   z-index: 10;
-  padding: 8px 14px;
-  border-radius: 999px;
-  background: rgba(15, 23, 42, 0.35);
-  border: 1px solid rgba(148, 163, 184, 0.4);
-  backdrop-filter: blur(4px);
-}
-
-.top-bar img {
-  filter: drop-shadow(0 10px 25px rgba(0, 0, 0, 0.35));
 }
 
 .logo-stf-img {
