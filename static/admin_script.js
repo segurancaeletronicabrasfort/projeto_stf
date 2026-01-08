@@ -55,6 +55,59 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     }
 
+    // ==========================================
+    // LÓGICA DE CRIAÇÃO (NOVO)
+    // ==========================================
+
+    // 1. Função para Abrir o Modal (Chamada pelo botão HTML)
+    window.openCreateModal = () => {
+        // Limpa os campos antes de abrir
+        document.getElementById("adminCreateUserForm").reset();
+        document.getElementById("createUserModal").style.display = "flex";
+    };
+
+    // 2. Enviar o Formulário de Criação
+    const createForm = document.getElementById("adminCreateUserForm");
+    if (createForm) {
+        createForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            // Pega os dados dos inputs
+            const fullName = document.getElementById("createFullName").value;
+            const username = document.getElementById("createUsername").value;
+            const password = document.getElementById("createPassword").value;
+            const role = document.getElementById("createRole").value;
+
+            try {
+                const response = await fetch("/users/create", {
+                    method: "POST",
+                    headers: { 
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ 
+                        username: username, 
+                        password: password, 
+                        full_name: fullName, 
+                        role: role 
+                    })
+                });
+
+                if (response.ok) {
+                    alert(`Usuário ${username} criado com sucesso!`);
+                    document.getElementById("createUserModal").style.display = "none";
+                    loadUsers(); // Atualiza a tabela na hora
+                } else {
+                    const err = await response.json();
+                    alert("Erro ao criar: " + (err.detail || "Verifique os dados."));
+                }
+            } catch (error) {
+                console.error(error);
+                alert("Erro de conexão ao tentar criar usuário.");
+            }
+        });
+    }
+
     // Carrega a lista ao abrir
     loadUsers();
 
@@ -109,6 +162,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
         }
     };
+
 
     // Função Global de Fechar Modal
     window.closeModal = (id) => {
