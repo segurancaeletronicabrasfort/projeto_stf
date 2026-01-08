@@ -366,26 +366,38 @@ body {
   opacity: 1;
 }
 
-/* Ícone circular com arco animado, sem sombra estranha no centro */
+/* Ícone circular com base para o arco animado */
 .icon-box {
   position: relative;
   width: 64px;
   height: 64px;
-  margin: 0 auto 16px;           /* centraliza no card */
+  margin: 0 auto 16px;               /* centraliza no card */
   border-radius: 999px;
   display: flex;
   align-items: center;
   justify-content: center;
 
-  font-size: 2rem;
+  font-size: 2rem;                   /* tamanho do ícone */
   color: var(--primary-color);
 
-  /* fundo liso, sem gradiente */
-  background: #ffffff;
-  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.18);
+  /* leve brilho de fundo */
+  background: radial-gradient(circle at 30% 0,
+              rgba(56, 189, 248, 0.25),
+              transparent 60%);
 }
 
-/* removemos o ::before que fazia o glow no centro */
+/* Glow bem suave atrás do círculo */
+.icon-box::before {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border-radius: inherit;
+  background: radial-gradient(circle,
+              rgba(15, 23, 42, 0.24),
+              transparent 65%);
+  opacity: 0.5;
+  filter: blur(4px);
+}
 
 /* Arco colorido em volta do ícone */
 .icon-box::after {
@@ -394,6 +406,7 @@ body {
   inset: -4px;
   border-radius: inherit;
 
+  /* arco com gradiente de cor */
   background: conic-gradient(
     from 210deg,
     #38bdf8,
@@ -403,26 +416,20 @@ body {
     #38bdf8
   );
 
-  /* recorta o centro para virar apenas um anel */
-  mask: radial-gradient(
-    farthest-side,
-    transparent 0,
-    transparent 68%,
-    #000 72%
-  );
-  -webkit-mask: radial-gradient(
-    farthest-side,
-    transparent 0,
-    transparent 68%,
-    #000 72%
-  );
+  /* fura o centro para virar “arco” e não disco sólido */
+  mask: radial-gradient(farthest-side,
+          transparent calc(100% - 5px),
+          #000 calc(100% - 3px));
+  -webkit-mask: radial-gradient(farthest-side,
+          transparent calc(100% - 5px),
+          #000 calc(100% - 3px));
 
-  opacity: 0;                      /* só aparece no hover */
+  opacity: 0;                        /* só aparece no hover */
   transform: rotate(-40deg);
   transition: opacity 0.25s ease;
 }
 
-/* anima o arco quando o card estiver em hover */
+/* animação do arco quando o card está em hover */
 .card-action:hover .icon-box::after {
   opacity: 1;
   animation: spin-arc 1.4s linear infinite;
@@ -439,6 +446,7 @@ body {
     transform: rotate(320deg);
   }
 }
+
 
 .card-action h4 {
   font-size: 1.1rem;
