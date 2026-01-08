@@ -21,9 +21,22 @@
                   0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   font-family: 'Roboto', system-ui, -apple-system, sans-serif;
   color: var(--text-dark);
+  background-color: #020617; /* fallback sob os gradientes */
+}
+
+/* Foco visível (acessibilidade) */
+button:focus-visible,
+a:focus-visible {
+  outline: 2px solid #38bdf8;
+  outline-offset: 3px;
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.25);
 }
 
 /* =========================================
@@ -36,8 +49,16 @@ body {
   top: 16px;
   left: 24px;
   z-index: 10;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.35);
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  backdrop-filter: blur(4px);
 }
 
+.top-bar img {
+  filter: drop-shadow(0 10px 25px rgba(0, 0, 0, 0.35));
+}
 
 .logo-stf-img {
   height: 75px;
@@ -154,7 +175,6 @@ body {
   margin-right: 8px;
 }
 
-/* mostra o erro */
 .login-error.visible {
   display: block;
 }
@@ -289,9 +309,12 @@ body {
   margin-bottom: 4rem;
   padding: 32px 26px 28px;
   border-radius: 24px;
-  background: rgba(255, 255, 255, 0.96);
+  background: radial-gradient(circle at top left,
+               rgba(255, 255, 255, 0.98),
+               rgba(241, 245, 249, 0.96));
   box-shadow: 0 20px 45px rgba(15, 23, 42, 0.16);
-  border: 1px solid rgba(148, 163, 184, 0.4);
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  backdrop-filter: blur(3px);
 }
 
 /* Títulos das seções */
@@ -366,37 +389,31 @@ body {
   opacity: 1;
 }
 
-/* Ícone circular com base para o arco animado */
+/* Estado “pressionado” */
+.card-action:active {
+  transform: translateY(-2px) scale(0.99);
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.25);
+}
+
+/* Ícone circular com arco animado */
 .icon-box {
   position: relative;
   width: 64px;
   height: 64px;
-  margin: 0 auto 16px;               /* centraliza no card */
+  margin: 0 auto 16px;
   border-radius: 999px;
   display: flex;
   align-items: center;
   justify-content: center;
-
-  font-size: 2rem;                   /* tamanho do ícone */
+  font-size: 2rem;
   color: var(--primary-color);
-
-  /* leve brilho de fundo */
-  background: radial-gradient(circle at 30% 0,
-              rgba(56, 189, 248, 0.25),
-              transparent 60%);
+  background: #ffffff;
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.18);
 }
 
-/* Glow bem suave atrás do círculo */
+/* garante que nenhum estilo antigo de ::before apareça */
 .icon-box::before {
-  content: '';
-  position: absolute;
-  inset: -6px;
-  border-radius: inherit;
-  background: radial-gradient(circle,
-              rgba(15, 23, 42, 0.24),
-              transparent 65%);
-  opacity: 0.5;
-  filter: blur(4px);
+  content: none;
 }
 
 /* Arco colorido em volta do ícone */
@@ -405,8 +422,6 @@ body {
   position: absolute;
   inset: -4px;
   border-radius: inherit;
-
-  /* arco com gradiente de cor */
   background: conic-gradient(
     from 210deg,
     #38bdf8,
@@ -415,16 +430,13 @@ body {
     #0f172a,
     #38bdf8
   );
-
-  /* fura o centro para virar “arco” e não disco sólido */
   mask: radial-gradient(farthest-side,
           transparent calc(100% - 5px),
           #000 calc(100% - 3px));
   -webkit-mask: radial-gradient(farthest-side,
           transparent calc(100% - 5px),
           #000 calc(100% - 3px));
-
-  opacity: 0;                        /* só aparece no hover */
+  opacity: 0;
   transform: rotate(-40deg);
   transition: opacity 0.25s ease;
 }
@@ -442,11 +454,8 @@ body {
 }
 
 @keyframes spin-arc {
-  to {
-    transform: rotate(320deg);
-  }
+  to { transform: rotate(320deg); }
 }
-
 
 .card-action h4 {
   font-size: 1.1rem;
@@ -518,131 +527,145 @@ body {
    4. MODAL DE CONFIGURAÇÕES
    ========================================= */
 
-/* =========================================
-   ESTILO DO MODAL (POP-UP)
-   ========================================= */
-
-/* 1. O Fundo Escuro (Overlay) */
 .modal-overlay {
-    position: fixed; /* OBRIGATÓRIO: Faz flutuar sobre a tela */
-    z-index: 1000;   /* Garante que fique na frente de tudo */
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5); /* Fundo preto transparente */
-    backdrop-filter: blur(5px); /* Desfoque moderno */
-    
-    /* Centraliza a caixa no meio da tela */
-    display: none; /* O JS muda isso para flex ao clicar */
-    align-items: center;
-    justify-content: center;
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
 }
 
-/* 2. A Caixa Branca (Card) */
+/* suporta tanto .modal-content quanto .modal-box */
+.modal-content,
 .modal-box {
-    background-color: #ffffff;
-    padding: 30px;
-    border-radius: 16px;
-    width: 90%;
-    max-width: 500px;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-    border: 1px solid rgba(0,0,0,0.1);
-    
-    /* Animação suave ao abrir */
-    animation: modalPop 0.3s ease-out;
+  width: 100%;
+  max-width: 520px;
+  background: #ffffff;
+  border-radius: 24px;
+  box-shadow:
+    0 25px 60px rgba(15, 23, 42, 0.45),
+    0 0 0 1px rgba(148, 163, 184, 0.5);
+  padding: 22px 22px 24px;
+  animation: modal-enter 0.26s ease-out;
 }
 
-@keyframes modalPop {
-    from { transform: scale(0.9); opacity: 0; }
-    to { transform: scale(1); opacity: 1; }
+@keyframes modal-enter {
+  from { opacity: 0; transform: translateY(16px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-/* 3. Cabeçalho do Modal */
 .modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-    border-bottom: 1px solid #e2e8f0;
-    padding-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 10px;
 }
 
 .modal-header h3 {
-    margin: 0;
-    color: var(--primary-color);
-    font-size: 1.2rem;
+  font-size: 1.2rem;
+  color: var(--primary-color);
 }
 
-/* Botão de Fechar (X) */
+/* Botão de fechar */
+.close-btn,
 .close-modal {
-    font-size: 28px;
-    font-weight: bold;
-    cursor: pointer;
-    color: #94a3b8;
-    transition: color 0.2s;
+  background: none;
+  border: none;
+  font-size: 1.6rem;
+  line-height: 1;
+  cursor: pointer;
+  color: #64748b;
+  padding: 4px;
+  border-radius: 999px;
+  transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
 }
+
+.close-btn:hover,
 .close-modal:hover {
-    color: #ef4444;
+  background: #e2e8f0;
+  color: #0f172a;
+  transform: translateY(-1px);
 }
 
-/* 4. Estilo das Seções Internas (Inputs e Labels) */
+.modal-body {
+  padding-top: 4px;
+}
+
+.setting-section,
 .config-section {
-    margin-bottom: 15px;
+  margin-bottom: 18px;
 }
 
+.setting-section h4,
 .config-section h4 {
-    margin-bottom: 10px;
-    color: #475569;
-    font-size: 0.95rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    font-weight: 700;
+  font-size: 0.95rem;
+  margin-bottom: 10px;
+  color: var(--primary-color);
 }
 
+/* Inputs dentro do modal */
 .modal-body .field {
-    margin-bottom: 15px;
+  margin-bottom: 15px;
 }
 
 .modal-body label {
-    display: block;
-    margin-bottom: 5px;
-    font-size: 0.85rem;
-    color: #64748b;
-    font-weight: 500;
+  display: block;
+  margin-bottom: 5px;
+  font-size: 0.85rem;
+  color: #64748b;
+  font-weight: 500;
 }
 
-.modal-body input, 
+.modal-body input,
 .modal-body select {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #cbd5e1;
-    border-radius: 8px;
-    outline: none;
-    font-size: 0.95rem;
-    transition: border-color 0.2s;
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 2px solid #e2e8f0;
+  background: #f8fafc;
+  color: #334155;
+  font-size: 0.9rem;
+  outline: none;
+  transition: all 0.2s ease;
 }
 
 .modal-body input:focus,
 .modal-body select:focus {
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(7, 46, 75, 0.1);
+  border-color: var(--primary-color);
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(7, 46, 75, 0.12);
 }
 
-/* Botão Salvar dentro do Modal */
+/* Botões dentro do modal */
+.btn-primary-small,
 .btn-save {
-    background-color: var(--primary-color);
-    color: white;
-    border: none;
-    padding: 12px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: background 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 18px;
+  border-radius: 999px;
+  border: none;
+  background: var(--primary-color);
+  color: #ffffff;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  margin-top: 4px;
+  box-shadow: 0 10px 20px rgba(7, 46, 75, 0.35);
+  transition: all 0.2s ease;
 }
 
+.btn-primary-small:hover,
 .btn-save:hover {
-    filter: brightness(1.1);
+  background: var(--primary-hover);
+  transform: translateY(-1px);
 }
 
 /* =========================================
