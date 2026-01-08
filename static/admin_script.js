@@ -163,6 +163,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     };
 
+
     // Função Global de Fechar Modal
     window.closeModal = (id) => {
         document.getElementById(id).style.display = "none";
