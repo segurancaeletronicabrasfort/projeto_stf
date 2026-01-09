@@ -123,6 +123,11 @@
                         <div class="field">
                             <label>Nova Senha</label>
                             <input type="password" id="newPass" required>
+                            <small class="password-hint">
+                                A senha deve conter no mínimo 8 caracteres, incluindo pelo menos uma letra maiúscula, uma letra minúscula e um número.
+                            </small>
+                            
+                        
                         </div>
                         <button type="submit" class="btn-save" style="width: 100%; margin-top: 10px;">Atualizar Senha</button>
                     </form>
@@ -135,6 +140,17 @@
             </div>
         </div>
     </div>
+<!-- Toast de feedback -->
+<div id="appToast" class="app-toast">
+    <div class="app-toast-icon">
+        <i class="fas fa-check-circle"></i>
+    </div>
+    <div class="app-toast-body">
+        <strong id="appToastTitle">Sucesso</strong>
+        <span id="appToastMessage">Mensagem</span>
+    </div>
+    <button id="appToastClose" type="button" class="app-toast-close">&times;</button>
+</div>
 
     <script src="/static/script.js"></script>
 </body>

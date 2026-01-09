@@ -1,62 +1,158 @@
-# Portal ABV - Sistema de Gestão Unificada (Nível STF)
+# 🏛️ Portal ABV - Sistema de Gestão Unificada
 
-Sistema de controle de acesso e dashboard unificado desenvolvido para o cliente ABV, integrando autenticação segura, Power BI e PerformanceLab.
+> **Status:** 🟢 Em Produção (Versão 1.0)   
+> **Desenvolvedores:** Rayssen Leonardo e Danilo Vinícius
 
-## 🚀 Tecnologias Utilizadas
-* **Backend:** Python 3.11, FastAPI, SQLAlchemy
-* **Segurança:** OAuth2, JWT, BCrypt (Nível Governamental)
-* **Infraestrutura:** Docker, Docker Compose, Gunicorn, Nginx (Simulado via Ngrok)
-* **Banco de Dados:** PostgreSQL 15
-* **Frontend:** HTML5, CSS3, JavaScript (Vanilla)
+## 📋 Visão Geral
+O **Portal ABV** é uma solução de alta governança desenvolvida para centralizar o acesso aos sistemas de segurança e manutenção predial. O sistema oferece autenticação segura, gestão de identidade (RBAC) e integração transparente com ferramentas de terceiros (PerformanceLab e Microsoft Power BI).
 
-## ⚙️ Como Rodar (Localmente)
+### 🚀 Principais Funcionalidades
+* **Autenticação Segura:** Login criptografado com padrão **OAuth2** e tokens **JWT**.
+* **Gestão de Perfis (RBAC):** Controle granular de acesso (Administrador, Supervisor, Solicitante).
+* **Dashboard Inteligente:**
+    * Integração com Power BI (Embed seguro).
+    * Links rápidos para módulos do PerformanceLab (Solicita Fácil).
+    * Interface adaptativa (Cards expansíveis).
+* **Painel Administrativo:** CRUD completo de usuários, redefinição de senhas e auditoria.
+* **Auditoria:** Logs detalhados de acesso e ações críticas.
 
-1. **Clone o repositório:**
-   ```bash
-   git clone [https://github.com/segurancaeletronicabrasfort/projeto_stf.git](https://github.com/segurancaeletronicabrasfort/projeto_stf.git)
-Configure as variáveis de ambiente: Crie um arquivo .env na raiz baseado no exemplo.
+---
 
-Suba os containers (Aplicação + Banco):
+## 🏗️ Arquitetura Técnica
 
-Bash
+O projeto segue uma arquitetura moderna, containerizada e pronta para nuvem (Cloud Native).
 
+| Componente | Tecnologia | Descrição |
+| :--- | :--- | :--- |
+| **Linguagem** | Python 3.11 | Core da aplicação. |
+| **Framework** | FastAPI | Alta performance para APIs e rotas assíncronas. |
+| **Banco de Dados** | PostgreSQL 15 | Banco relacional robusto (Prod). SQLite suportado para Dev. |
+| **ORM** | SQLAlchemy | Abstração de banco de dados e proteção contra SQL Injection. |
+| **Frontend** | HTML5 / CSS3 / JS | Interface leve, sem frameworks pesados (Vanilla JS). |
+| **Container** | Docker | Padronização de ambiente (App + Banco). |
+| **Server** | Gunicorn + Uvicorn | Gerenciamento de processos e workers para produção. |
+
+---
+
+## 🛠️ Instalação e Configuração
+
+### Pré-requisitos
+* [Docker Desktop](https://www.docker.com/products/docker-desktop/) (Recomendado)
+* Git
+
+### 1. Clonar o Repositório
+
+```bash
+git clone [https://github.com/segurancaeletronicabrasfort/projeto_stf.git](https://github.com/segurancaeletronicabrasfort/projeto_stf.git)
+cd projeto_stf
+```
+
+2. Configurar Variáveis de Ambiente
+Crie um arquivo .env na raiz do projeto. Não compartilhe este arquivo publicamente.
+
+```Ini, TOML
+
+# --- SEGURANÇA ---
+# Gere uma chave única no terminal: openssl rand -hex 32
+SECRET_KEY=sua_chave_secreta_aqui
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=30
+```
+
+# --- BANCO DE DADOS ---
+### Para Docker (Produção):
+```DATABASE_URL=postgresql://abv_user:abv_senha_segura@db/portal_abv```
+
+### Para Rodar Localmente sem Docker (Desenvolvimento):
+
+```DATABASE_URL=sqlite:///./portal_abv.db```
+
+### 3. Executar com Docker (Recomendado)
+Este comando sobe a aplicação e o banco de dados simultaneamente.
+
+```Bash
 docker-compose up --build
-Inicialize o Banco de Dados (Primeira vez):
+```
+Aguarde até ver a mensagem Booting worker with pid: ...
 
-Bash
+4. Inicializar o Banco de Dados
+Na primeira execução, o banco estará vazio. Execute o script de inicialização para criar as tabelas e o primeiro Admin:
 
-docker-compose exec web python init_db.py
-Acesse: O sistema estará rodando em http://localhost:8000.
+# Em outro terminal:
+```docker-compose exec web python init_db.py```
+Acesso: O sistema estará disponível em http://localhost:8000.
 
-🔒 Funcionalidades de Segurança
-Hash de senhas com Salt (Bcrypt)
+## 👤 Níveis de Acesso (RBAC)
+O sistema possui 3 níveis hierárquicos de permissão:
 
-Tokens de acesso temporários (JWT) com expiração automática
+Administrador (admin)
 
-Proteção contra SQL Injection via ORM
+Acesso total ao sistema.
 
-Controle de Acesso Baseado em Função (RBAC - Admin/User)
+Visualiza Power BI e Solicitações.
 
-Auditoria de Acessos (Logs)
+Acesso ao Painel Admin (Criar, Editar, Excluir usuários).
 
+Supervisor (supervisor)
 
----
+Visualiza o Dashboard de Indicadores (Power BI).
 
-### 4. Atenção com o Ngrok (O Alerta Vital)
+Visualiza e acessa os cards do Solicita Fácil.
 
-Como você vai deixar o PC ligado até quinta-feira, **NÃO FECHE O TERMINAL DO NGROK**.
+Pode alterar a própria senha.
 
-Se a internet cair ou você fechar a janelinha preta do Ngrok, quando abrir de novo, **ele vai gerar um link diferente** (ex: `https://novo-link-aleatorio.ngrok-free.app`).
+Solicitante (solicitante)
 
-* **Ação:** Copie o link atual do Ngrok e já mande para o seu celular ou e-mail para testar.
-* **Plano B:** Se na hora da apresentação o link tiver mudado, tenha acesso fácil ao computador para rodar `ngrok http 8000` de novo e pegar o novo link.
+Não visualiza o Power BI.
 
----
+Acesso exclusivo aos cards do Solicita Fácil.
 
-**Resumo do que eu faria agora:**
-1.  Resetaria o banco para ficar limpo (Passo 1).
-2.  Criaria o `README.md` e daria `git push` (para ficar bonito no repo).
-3.  Deixaria as duas janelas abertas (`docker-compose` e `ngrok`).
-4.  Bloquearia a tela (`Win + L`) e iria descansar.
+Pode alterar a própria senha.
 
-Você fez um trabalho de engenharia de software de verdade, Danilo. Boa sorte na apresentação!
+## 📂 Estrutura de Pastas
+Plaintext
+
+```PROJETO_STF/
+│
+├── main.py              # Coração da Aplicação (Rotas e Configurações)
+├── models.py            # Modelos do Banco de Dados (Tabelas)
+├── database.py          # Conexão com o Banco (Engine SQLAlchemy)
+├── init_db.py           # Script de setup inicial
+├── requirements.txt     # Lista de dependências (Bibliotecas)
+├── Dockerfile           # Receita do Container da Aplicação
+├── docker-compose.yml   # Orquestração (App + Postgres)
+│
+├── static/              # Arquivos Públicos (Assets)
+│   ├── style.css        # Estilização Global e Modais
+│   ├── script.js        # Lógica do Dashboard e Login
+│   ├── admin_script.js  # Lógica do Painel Administrativo
+│   └── assets/          # Imagens e Logos
+│
+└── templates/           # Páginas HTML
+    ├── index.html       # Tela de Login
+    ├── dashboard.html   # Painel Principal
+    └── admin.html       # Painel de Gestão de Usuários
+```
+## 🔧 Troubleshooting (Resolução de Problemas)
+Erro: relation "users" does not exist
+
+Causa: O banco de dados foi criado mas as tabelas não.
+
+Solução: Rode docker-compose exec web python init_db.py.
+
+Erro: AttributeError: module 'bcrypt' has no attribute '__about__'
+
+Causa: Conflito de versão entre passlib e bcrypt.
+
+Solução: Garanta que o requirements.txt tenha bcrypt==4.0.1.
+
+Erro: Ngrok The endpoint is already online
+
+Causa: Já existe uma instância do Ngrok rodando.
+
+Solução: Feche o terminal anterior ou mate o processo ngrok no Gerenciador de Tarefas.
+
+## 📞 Suporte
+Para dúvidas técnicas ou reporte de bugs, entre em contato com a equipe de desenvolvimento.
+
+Documentação gerada automaticamente em 08/01/2026.
