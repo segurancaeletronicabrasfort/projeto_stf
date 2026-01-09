@@ -4,6 +4,68 @@ document.addEventListener("DOMContentLoaded", () => {
     // Verifica em qual página estamos
     const isLoginPage = path === "/" || path.includes("index.html");
     const isDashboard = path.includes("dashboard") || path.includes("dashboard.html");
+// Helper global de toast (sucesso/erro)
+function showToast(message, type = "success", title) {
+    const toast = document.getElementById("appToast");
+    const titleEl = document.getElementById("appToastTitle");
+    const msgEl = document.getElementById("appToastMessage");
+    const closeBtn = document.getElementById("appToastClose");
+
+    if (!toast || !titleEl || !msgEl) {
+        // fallback se o HTML ainda não estiver disponível
+        alert(message);
+        return;
+    }
+
+    // Define título padrão por tipo
+    const defaultTitle = type === "error" ? "Erro" : "Sucesso";
+
+    titleEl.textContent = title || defaultTitle;
+    msgEl.textContent = message;
+
+    toast.classList.remove("success", "error", "visible");
+    // força reflow para reiniciar animação
+    void toast.offsetWidth;
+    toast.classList.add(type === "error" ? "error" : "success", "visible");
+
+    // Fechar manualmente
+    if (closeBtn) {
+        closeBtn.onclick = () => toast.classList.remove("visible");
+    }
+
+    // Fecha automático após 4s
+    clearTimeout(toast._timerId);
+    toast._timerId = setTimeout(() => {
+        toast.classList.remove("visible");
+    }, 4000);
+}
+// Regras de senha:
+// - mínimo 8 caracteres
+// - pelo menos 1 letra minúscula
+// - pelo menos 1 letra maiúscula
+// - pelo menos 1 número
+// - sem espaços
+function validatePasswordRules(password) {
+    const minLength = 8;
+
+    if (!password || password.length < minLength) {
+        return `A senha deve ter pelo menos ${minLength} caracteres.`;
+    }
+    if (/\s/.test(password)) {
+        return "A senha não pode conter espaços em branco.";
+    }
+    if (!/[a-z]/.test(password)) {
+        return "A senha deve conter pelo menos uma letra minúscula.";
+    }
+    if (!/[A-Z]/.test(password)) {
+        return "A senha deve conter pelo menos uma letra maiúscula.";
+    }
+    if (!/[0-9]/.test(password)) {
+        return "A senha deve conter pelo menos um número.";
+    }
+
+    return ""; // ok
+}
 
     // =========================================================
     // 1. LÓGICA DA PÁGINA DE LOGIN
@@ -194,76 +256,54 @@ carregarNomeUsuario();
             });
         }
 
-        // --- 2.6 Formulário: Trocar Senha ---
-        const changePassForm = document.getElementById("changePasswordForm");
-        if (changePassForm) {
-            changePassForm.addEventListener("submit", async (e) => {
-                e.preventDefault();
-                const oldPass = document.getElementById("oldPass").value;
-                const newPass = document.getElementById("newPass").value;
+      // --- 2.6 Formulário: Trocar Senha ---
+const changePassForm = document.getElementById("changePasswordForm");
+if (changePassForm) {
+    changePassForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const oldPass = document.getElementById("oldPass").value;
+        const newPass = document.getElementById("newPass").value;
 
-                try {
-                    const response = await fetch("/users/me/password", {
-                        method: "POST",
-                        headers: { 
-                            "Content-Type": "application/json",
-                            "Authorization": `Bearer ${token}` 
-                        },
-                        body: JSON.stringify({ old_password: oldPass, new_password: newPass })
-                    });
-
-                    if (response.ok) {
-                        alert("Senha alterada com sucesso! Faça login novamente.");
-                        localStorage.clear();
-                        window.location.href = "/";
-                    } else {
-                        const err = await response.json();
-                        alert("Erro: " + (err.detail || "Falha ao trocar senha"));
-                    }
-                } catch (error) {
-                    alert("Erro de conexão.");
-                }
-            });
+        // Validação das regras de senha
+        const errorMsg = validatePasswordRules(newPass);
+        if (errorMsg) {
+            showToast(errorMsg, "error");
+            return;
         }
 
-        // --- 2.7 Formulário: Criar Usuário (Apenas Admin) ---
-        const createUserForm = document.getElementById("createUserForm");
-        if (createUserForm) {
-            createUserForm.addEventListener("submit", async (e) => {
-                e.preventDefault();
-                
-                const uName = document.getElementById("newUsername").value;
-                const uFull = document.getElementById("newFullname").value;
-                const uPass = document.getElementById("newUserPass").value;
-                const uRole = document.getElementById("newUserRole").value;
-
-                try {
-                    const response = await fetch("/users/create", {
-                        method: "POST",
-                        headers: { 
-                            "Content-Type": "application/json",
-                            "Authorization": `Bearer ${token}` 
-                        },
-                        body: JSON.stringify({ 
-                            username: uName, 
-                            password: uPass, 
-                            full_name: uFull, 
-                            role: uRole 
-                        })
-                    });
-
-                    if (response.ok) {
-                        alert(`Usuário ${uName} criado com sucesso!`);
-                        createUserForm.reset();
-                    } else {
-                        const err = await response.json();
-                        alert("Erro ao criar: " + (err.detail || "Dados inválidos"));
-                    }
-                } catch (error) {
-                    alert("Erro de conexão.");
-                }
-            });
+        if (oldPass === newPass) {
+            showToast("A nova senha deve ser diferente da senha atual.", "error");
+            return;
         }
-    }
-});
+
+        try {
+            const response = await fetch("/users/me/password", {
+                method: "POST",
+                headers: { 
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}` 
+                },
+                body: JSON.stringify({ old_password: oldPass, new_password: newPass })
+            });
+
+            if (response.ok) {
+                showToast(
+                    "Senha alterada com sucesso! Você será redirecionado para fazer login novamente.",
+                    "success"
+                );
+
+                setTimeout(() => {
+                    localStorage.clear();
+                    window.location.href = "/";
+                }, 1800);
+            } else {
+                const err = await response.json();
+                showToast(err.detail || "Falha ao trocar senha.", "error");
+            }
+        } catch (error) {
+            console.error(error);
+            showToast("Erro de conexão com o servidor.", "error");
+        }
+    });
+}}});
 

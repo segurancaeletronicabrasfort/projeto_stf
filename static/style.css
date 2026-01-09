@@ -984,3 +984,307 @@ a:focus-visible {
     background: #dc2626;
     transform: translateY(-1px);
 }
+/* Glow suave atrás do card */
+.login-wrapper {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: radial-gradient(circle at top, #0b416d 0%, #072e4b 40%, #020b18 100%);
+}
+
+.login-wrapper::before {
+  content: "";
+  position: absolute;
+  width: 520px;
+  height: 520px;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(56, 189, 248, 0.18), transparent 60%);
+  opacity: 0.8;
+  filter: blur(8px);
+  transform: translateY(-20px);
+  z-index: 0;
+}
+
+.login-card {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 480px;
+  padding: 48px 40px 36px;
+  border-radius: 24px;
+  background: linear-gradient(180deg, #ffffff, #f8fafc);
+  color: var(--primary-color);
+  box-shadow:
+    0 25px 50px -12px rgba(0, 0, 0, 0.55),
+    0 0 0 1px rgba(15, 23, 42, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  animation: float-card 1s ease-out forwards;
+}
+
+/* Badge de ambiente/sistema */
+.card-header {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.env-badge {
+  align-self: flex-start;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.06);
+  border: 1px solid rgba(148, 163, 184, 0.5);
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+/* Pílulas de destaque dos serviços */
+.login-highlights {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.highlight-pill {
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 0.74rem;
+  background: rgba(15, 23, 42, 0.02);
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  color: #475569;
+}
+
+/* Rodapé do card (texto de ajuda) */
+.login-help {
+  margin-top: 8px;
+  text-align: center;
+  font-size: 0.78rem;
+  color: #94a3b8;
+}
+
+.login-help span {
+  color: #64748b;
+  font-weight: 500;
+}
+
+/* Rodapé da página: versão / DTI */
+.login-footer-meta {
+  position: fixed;
+  bottom: 16px;
+  right: 24px;
+  display: flex;
+  gap: 12px;
+  font-size: 0.72rem;
+  color: rgba(148, 163, 184, 0.9);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+/* =========================================
+   TOAST DE FEEDBACK GLOBAL
+   ========================================= */
+
+.app-toast {
+  position: fixed;
+  top: 22px;
+  right: 24px;
+  z-index: 1200;
+  min-width: 260px;
+  max-width: 360px;
+
+  padding: 12px 14px;
+  border-radius: 14px;
+
+  background: #020617;
+  color: #e5e7eb;
+  border: 1px solid rgba(148, 163, 184, 0.55);
+  box-shadow: 0 22px 45px rgba(15, 23, 42, 0.7);
+
+  display: none;
+  align-items: flex-start;
+  gap: 10px;
+
+  font-size: 0.85rem;
+  animation: toast-in 0.25s ease-out;
+}
+
+.app-toast.visible {
+  display: flex;
+}
+
+.app-toast.success {
+  border-color: #22c55e;
+}
+
+.app-toast.error {
+  border-color: #ef4444;
+}
+
+.app-toast-icon {
+  font-size: 1.2rem;
+  margin-top: 2px;
+}
+
+.app-toast-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+#appToastTitle {
+  font-weight: 600;
+}
+
+#appToastMessage {
+  opacity: 0.9;
+}
+
+.app-toast-close {
+  margin-left: auto;
+  background: transparent;
+  border: none;
+  color: #9ca3af;
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 0 2px;
+  line-height: 1;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.app-toast-close:hover {
+  color: #f9fafb;
+  transform: scale(1.05);
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+.password-hint {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.75rem;
+  color: #9ca3af;
+}
+/* =========================================
+   TOASTS (avisos flutuantes)
+   ========================================= */
+
+.toast-container {
+  position: fixed;
+  top: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none; /* não bloqueia cliques na página */
+}
+
+/* Estilo base do toast */
+.toast-notification {
+  min-width: 280px;
+  max-width: 420px;
+  margin: 0 auto;
+
+  padding: 10px 18px;
+  border-radius: 999px;
+  background: #0f172a;
+  color: #e5e7eb;
+  font-size: 0.85rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+
+  box-shadow:
+    0 18px 40px rgba(15, 23, 42, 0.45),
+    0 0 0 1px rgba(148, 163, 184, 0.35);
+
+  border: 1px solid rgba(15, 23, 42, 0.4);
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  opacity: 0;
+  transform: translate(-50%, -16px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  pointer-events: auto;
+  position: relative;
+}
+
+/* Bolinha de status à esquerda */
+.toast-notification::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: #e5e7eb;
+  box-shadow: 0 0 0 4px rgba(148, 163, 184, 0.4);
+}
+
+/* Estado visível (aplicado via JS com .show) */
+.toast-notification.show {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+/* Variações de cor */
+.toast-notification.success {
+  background: linear-gradient(135deg, #166534, #022c22);
+  border-color: rgba(22, 163, 74, 0.7);
+}
+
+.toast-notification.success::before {
+  background: #bbf7d0;
+  box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.35);
+}
+
+.toast-notification.error {
+  background: linear-gradient(135deg, #7f1d1d, #450a0a);
+  border-color: rgba(248, 113, 113, 0.7);
+}
+
+.toast-notification.error::before {
+  background: #fee2e2;
+  box-shadow: 0 0 0 4px rgba(248, 113, 113, 0.4);
+}
+
+.toast-notification.info {
+  background: linear-gradient(135deg, #0f172a, #020617);
+  border-color: rgba(59, 130, 246, 0.7);
+}
+
+.toast-notification.info::before {
+  background: #bfdbfe;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.4);
+}
+
+/* Opcional: botãozinho para fechar manualmente */
+.toast-notification .toast-close {
+  margin-left: auto;
+  cursor: pointer;
+  font-size: 0.8rem;
+  opacity: 0.75;
+  border: none;
+  background: transparent;
+  color: inherit;
+  padding: 0 0 0 6px;
+}
+
+.toast-notification .toast-close:hover {
+  opacity: 1;
+}

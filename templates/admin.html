@@ -15,7 +15,7 @@
     <!-- NAVBAR ADMIN -->
     <nav class="navbar" style="background-color: #1e293b;">
         <div class="nav-brand">
-            Portal ABV <strong>ADMIN</strong>
+            Gestão de <strong>Usuários</strong>
         </div>
         <div class="nav-user">
             <a href="/dashboard" class="btn-logout" style="text-decoration: none; margin-right: 10px;">
@@ -117,8 +117,12 @@
                         <input type="text" id="createUsername" required placeholder="Ex: joao.silva">
                     </div>
                     <div class="field">
+                        
                         <label>Senha Inicial</label>
                         <input type="password" id="createPassword" required placeholder="******">
+                            <small class="password-hint">
+                                A senha deve conter no mínimo 8 caracteres, incluindo pelo menos uma letra maiúscula, uma letra minúscula e um número.
+                            </small>
                     </div>
                     <div class="field">
                         <label>Nível de Acesso</label>

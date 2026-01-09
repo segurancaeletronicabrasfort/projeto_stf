@@ -1,7 +1,74 @@
 document.addEventListener("DOMContentLoaded", async () => {
     const token = localStorage.getItem("userToken");
 
-    // 1. Segurança básica – só Admin entra aqui
+    /* ======================================================
+       HELPERS: TOAST + REGRAS DE SENHA
+       ====================================================== */
+
+    function ensureToastContainer() {
+        let container = document.getElementById("toastContainer");
+        if (!container) {
+            container = document.createElement("div");
+            container.id = "toastContainer";
+            container.className = "toast-container";
+            document.body.appendChild(container);
+        }
+        return container;
+    }
+
+    // type: "info" | "success" | "error"
+    function showToast(message, type = "info") {
+        const container = ensureToastContainer();
+
+        const toast = document.createElement("div");
+        toast.className = `toast-notification ${type}`;
+        toast.textContent = message;
+
+        container.appendChild(toast);
+
+        // dispara animação
+        requestAnimationFrame(() => {
+            toast.classList.add("show");
+        });
+
+        setTimeout(() => {
+            toast.classList.remove("show");
+            setTimeout(() => toast.remove(), 300);
+        }, 3500);
+    }
+
+    // Regras de senha:
+    // - mínimo 8 caracteres
+    // - pelo menos 1 número
+    // - pelo menos 1 letra
+    // - pelo menos 1 letra MAIÚSCULA
+    // - sem espaços
+    function validatePasswordRules(password) {
+        const minLength = 8;
+
+        if (!password || password.length < minLength) {
+            return `A senha deve ter pelo menos ${minLength} caracteres.`;
+        }
+        if (/\s/.test(password)) {
+            return "A senha não pode conter espaços em branco.";
+        }
+        if (!/[0-9]/.test(password)) {
+            return "A senha deve conter pelo menos um número.";
+        }
+        if (!/[A-Z]/.test(password)) {
+            return "A senha deve conter pelo menos uma letra maiúscula.";
+        }
+        if (!/[a-zA-Z]/.test(password)) {
+            return "A senha deve conter pelo menos uma letra.";
+        }
+
+        return "";
+    }
+
+    /* ======================================================
+       1. Segurança básica – só Admin entra aqui
+       ====================================================== */
+
     if (!token) {
         window.location.href = "/";
         return;
@@ -10,7 +77,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     try {
         const payload = JSON.parse(atob(token.split(".")[1]));
         if (payload.role !== "admin") {
-            alert("Acesso restrito a Administradores.");
+            showToast("Acesso restrito a Administradores.", "error");
             window.location.href = "/dashboard";
             return;
         }
@@ -19,7 +86,10 @@ document.addEventListener("DOMContentLoaded", async () => {
         return;
     }
 
-    // 2. Logout
+    /* ======================================================
+       2. Logout
+       ====================================================== */
+
     const btnLogout = document.getElementById("btnLogout");
     if (btnLogout) {
         btnLogout.addEventListener("click", () => {
@@ -28,7 +98,10 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
     }
 
-    // Referências do modal de exclusão
+    /* ======================================================
+       Referências do modal de exclusão
+       ====================================================== */
+
     const confirmModal   = document.getElementById("confirmDeleteModal");
     const confirmText    = document.getElementById("confirmDeleteText");
     const confirmBtn     = document.getElementById("confirmDeleteBtn");
@@ -37,7 +110,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     let deleteUserId   = null;
     let deleteUsername = "";
 
-    // 3. Função para carregar usuários
+    /* ======================================================
+       3. Função para carregar usuários
+       ====================================================== */
+
     async function loadUsers() {
         const tbody = document.getElementById("usersTableBody");
         if (!tbody) return;
@@ -101,32 +177,39 @@ document.addEventListener("DOMContentLoaded", async () => {
             });
         } catch (error) {
             console.error(error);
-            alert("Erro ao carregar usuários.");
+            showToast("Erro ao carregar usuários.", "error");
         }
     }
 
-    // ==========================================
-    // LÓGICA DE CRIAÇÃO (NOVO)
-    // ==========================================
+    /* ======================================================
+       4. LÓGICA DE CRIAÇÃO (NOVO)
+       ====================================================== */
 
-    // 1. Função para Abrir o Modal (Chamada pelo botão HTML)
+    // Abrir modal de criação (chamado pelo botão HTML)
     window.openCreateModal = () => {
-        // Limpa os campos antes de abrir
-        document.getElementById("adminCreateUserForm").reset();
-        document.getElementById("createUserModal").style.display = "flex";
+        const form = document.getElementById("adminCreateUserForm");
+        if (form) form.reset();
+        const modal = document.getElementById("createUserModal");
+        if (modal) modal.style.display = "flex";
     };
 
-    // 2. Enviar o Formulário de Criação
+    // Enviar o formulário de criação
     const createForm = document.getElementById("adminCreateUserForm");
     if (createForm) {
         createForm.addEventListener("submit", async (e) => {
             e.preventDefault();
 
-            // Pega os dados dos inputs
-            const fullName = document.getElementById("createFullName").value;
-            const username = document.getElementById("createUsername").value;
+            const fullName = document.getElementById("createFullName").value.trim();
+            const username = document.getElementById("createUsername").value.trim();
             const password = document.getElementById("createPassword").value;
-            const role = document.getElementById("createRole").value;
+            const role     = document.getElementById("createRole").value;
+
+            // Regras de senha
+            const pwdError = validatePasswordRules(password);
+            if (pwdError) {
+                showToast(pwdError, "error");
+                return;
+            }
 
             try {
                 const response = await fetch("/users/create", {
@@ -144,24 +227,28 @@ document.addEventListener("DOMContentLoaded", async () => {
                 });
 
                 if (response.ok) {
-                    alert(`Usuário ${username} criado com sucesso!`);
-                    document.getElementById("createUserModal").style.display = "none";
-                    loadUsers(); // Atualiza a tabela na hora
+                    showToast(`Usuário ${username} criado com sucesso!`, "success");
+                    const modal = document.getElementById("createUserModal");
+                    if (modal) modal.style.display = "none";
+                    loadUsers();
                 } else {
                     const err = await response.json();
-                    alert("Erro ao criar: " + (err.detail || "Verifique os dados."));
+                    showToast("Erro ao criar: " + (err.detail || "Verifique os dados."), "error");
                 }
             } catch (error) {
                 console.error(error);
-                alert("Erro de conexão ao tentar criar usuário.");
+                showToast("Erro de conexão ao tentar criar usuário.", "error");
             }
         });
     }
-    
+
     // Carrega a tabela ao entrar
     loadUsers();
 
-    // 4. Lógica de edição
+    /* ======================================================
+       5. Lógica de edição
+       ====================================================== */
+
     window.openEdit = (id, name, role) => {
         const modal = document.getElementById("editUserModal");
         if (!modal) return;
@@ -180,13 +267,24 @@ document.addEventListener("DOMContentLoaded", async () => {
             e.preventDefault();
 
             const id = document.getElementById("editUserId").value;
+            const newFullName = document.getElementById("editFullName").value;
+            const newRole     = document.getElementById("editRole").value;
+            const newPass     = document.getElementById("editPassword").value;
+
             const body = {
-                full_name: document.getElementById("editFullName").value,
-                role: document.getElementById("editRole").value,
+                full_name: newFullName,
+                role: newRole,
             };
 
-            const pass = document.getElementById("editPassword").value;
-            if (pass) body.password = pass;
+            // Só valida/enviamos senha se o campo tiver sido preenchido
+            if (newPass) {
+                const pwdError = validatePasswordRules(newPass);
+                if (pwdError) {
+                    showToast(pwdError, "error");
+                    return;
+                }
+                body.password = newPass;
+            }
 
             try {
                 const res = await fetch(`/users/${id}`, {
@@ -200,23 +298,29 @@ document.addEventListener("DOMContentLoaded", async () => {
 
                 if (!res.ok) {
                     const err = await res.json();
-                    alert("Erro ao atualizar: " + (err.detail || "Falha desconhecida."));
+                    showToast("Erro ao atualizar: " + (err.detail || "Falha desconhecida."), "error");
                     return;
                 }
 
-                document.getElementById("editUserModal").style.display = "none";
+                const modal = document.getElementById("editUserModal");
+                if (modal) modal.style.display = "none";
+
                 await loadUsers();
-                alert("Usuário atualizado com sucesso.");
+                showToast("Usuário atualizado com sucesso.", "success");
             } catch (err) {
-                alert("Erro de conexão ao atualizar usuário.");
+                console.error(err);
+                showToast("Erro de conexão ao atualizar usuário.", "error");
             }
         });
     }
 
-    // 5. Lógica de exclusão usando MODAL (sem confirm nativo)
+    /* ======================================================
+       6. Lógica de exclusão usando MODAL
+       ====================================================== */
+
     window.deleteUser = (id, username) => {
         if (!confirmModal) {
-            // fallback: se o modal não existir, usa confirm normal
+            // fallback: se o modal não existir
             if (confirm(`Tem certeza que deseja EXCLUIR o usuário ${username}?`)) {
                 performDelete(id);
             }
@@ -244,13 +348,14 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             if (res.ok) {
                 await loadUsers();
-                alert("Usuário excluído com sucesso.");
+                showToast("Usuário excluído com sucesso.", "success");
             } else {
                 const err = await res.json();
-                alert("Erro ao excluir: " + (err.detail || "Falha desconhecida."));
+                showToast("Erro ao excluir: " + (err.detail || "Falha desconhecida."), "error");
             }
         } catch (error) {
-            alert("Erro de conexão ao excluir usuário.");
+            console.error(error);
+            showToast("Erro de conexão ao excluir usuário.", "error");
         }
     }
 
@@ -275,7 +380,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
     }
 
-    // Função global de fechar modal (já usada no X dos modais)
+    // Função global de fechar modal (X dos modais)
     window.closeModal = (id) => {
         const m = document.getElementById(id);
         if (m) m.style.display = "none";
