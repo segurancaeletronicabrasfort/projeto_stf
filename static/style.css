@@ -44,27 +44,41 @@ a:focus-visible {
    ========================================= */
 
 /* Trava a rolagem geral da página de login */
-html, body.login-body-app {
+html {
+    height: 100%;
+    /* REMOVIDO O OVERFLOW: HIDDEN DAQUI */
+}
+
+/* 2. Configuração EXCLUSIVA do Body de Login (Travado) */
+body.login-body-app {
     height: 100%;
     margin: 0;
     padding: 0;
-    overflow: hidden; /* OBRIGATÓRIO: Mata o scroll lateral e vertical */
+    overflow: hidden; /* <--- O segredo: só trava se tiver essa classe */
     font-family: 'Roboto', sans-serif;
-    background-color: #020617; /* Fundo de segurança */
+    background-color: #020617;
 }
 
-/* O Grande Container Flexível */
+/* 3. Configuração EXCLUSIVA do Body de Dashboard (Rolagem Permitida) */
+body.dashboard-body {
+    min-height: 100vh;
+    overflow-y: auto; /* Garante que o scroll vertical funcione */
+    overflow-x: hidden; /* Evita scroll lateral indesejado */
+    /* ... o resto do estilo do dashboard continua lá embaixo ... */
+}
+
+/* O Grande Container Flexível (Só existe no Login) */
 .app-container {
-    height: 100dvh; /* Altura exata da tela visível */
-    width: 100vw;   /* Largura exata */
+    height: 100dvh; 
+    width: 100vw;   
     display: flex;
-    flex-direction: column; /* Pilha vertical */
-    justify-content: space-between; /* Espalha: Topo... Meio... Fundo */
+    flex-direction: column; 
+    justify-content: space-between; 
     align-items: center;
     position: relative;
     z-index: 1;
     
-    /* Fundo Gradiente Principal */
+    /* Fundo Gradiente */
     background: radial-gradient(circle at top, #0b416d 0%, #072e4b 40%, #020b18 100%);
 }
 
@@ -118,7 +132,7 @@ html, body.login-body-app {
 
 /* A Imagem da Logo em si */
 .logo-img {
-    height: 60px;
+    height: 100px; /* Ajusta o tamanho do logo */
     width: auto;
     display: block;
     
@@ -309,399 +323,368 @@ html, body.login-body-app {
 }
 
 /* =========================================
-   3. DASHBOARD (dashboard.html)
+   3. DASHBOARD (VISUAL PREMIUM + LEGADO RAYSSEN)
    ========================================= */
 
 .dashboard-body {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  font-family: 'Roboto', system-ui, -apple-system, sans-serif;
-  background:
-    radial-gradient(circle at 0% 0%, rgba(11, 65, 109, 0.35) 0, transparent 55%),
-    radial-gradient(circle at 100% 0%, rgba(56, 189, 248, 0.22) 0, transparent 55%),
-    var(--bg-light);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    /* Fundo original do Rayssen mantido */
+    background: 
+        radial-gradient(circle at 0% 0%, rgba(11, 65, 109, 0.35) 0, transparent 55%),
+        radial-gradient(circle at 100% 0%, rgba(56, 189, 248, 0.22) 0, transparent 55%),
+        var(--bg-light);
+    overflow-x: hidden;
 }
 
-/* Barra superior */
+/* Navbar (Mantida Original) */
 .navbar {
-  background: linear-gradient(90deg, #072e4b, #0b416d);
-  color: var(--white);
-  height: 70px;
-  padding: 0 32px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.35);
-  position: sticky;
-  top: 0;
-  z-index: 100;
+    background: linear-gradient(90deg, #072e4b, #0b416d);
+    color: var(--white);
+    height: 70px;
+    padding: 0 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.35);
+    position: sticky;
+    top: 0;
+    z-index: 100;
 }
 
-/* Marca do sistema */
 .nav-brand {
-  font-family: 'Josefin Sans', sans-serif;
-  font-weight: 700;
-  font-size: 1.1rem;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  padding: 8px 18px;
-  border-radius: 999px;
-  border: 1px solid rgba(248, 250, 252, 0.32);
-  background: rgba(15, 23, 42, 0.2);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+    font-family: 'Josefin Sans', sans-serif;
+    font-weight: 700;
+    font-size: 1.1rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 8px 18px;
+  /*  border-radius: 999px;
+    border: 1px solid rgba(248, 250, 252, 0.32);
+    background: rgba(15, 23, 42, 0.2);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);*/
 }
 
 .nav-user {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-size: 0.9rem;
 }
 
-.nav-user span {
-  opacity: 0.9;
-}
-
-/* Botões de sair / config */
 .btn-logout {
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  color: var(--white);
-  padding: 8px 16px;
-  border-radius: 999px;
-  cursor: pointer;
-  font-size: 0.82rem;
-  transition: all 0.2s ease;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.btn-logout i {
-  font-size: 0.9rem;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    color: var(--white);
+    padding: 8px 16px;
+    border-radius: 999px;
+    cursor: pointer;
+    font-size: 0.82rem;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .btn-logout:hover {
-  background: rgba(255, 255, 255, 0.16);
-  transform: translateY(-1px);
-  box-shadow: 0 12px 25px rgba(15, 23, 42, 0.45);
+    background: rgba(255, 255, 255, 0.16);
+    transform: translateY(-1px);
+    box-shadow: 0 12px 25px rgba(15, 23, 42, 0.45);
 }
 
-/* Conteúdo principal */
+/* Conteúdo Principal */
 .main-content {
-  width: 100%;
-  max-width: 1280px;
-  margin: 56px auto 48px;
-  padding: 0 24px 40px;
-  flex: 1;
+    width: 100%;
+    max-width: 1280px;
+    margin: 40px auto;
+    padding: 0 24px 60px;
+    flex: 1;
 }
 
-/* Container de cada bloco (Serviços / Indicadores) */
-.section-container {
-  margin-bottom: 4rem;
-  padding: 32px 26px 28px;
-  border-radius: 24px;
-  background: radial-gradient(circle at top left,
-               rgba(255, 255, 255, 0.98),
-               rgba(241, 245, 249, 0.96));
-  box-shadow: 0 20px 45px rgba(15, 23, 42, 0.16);
-  border: 1px solid rgba(148, 163, 184, 0.35);
-  backdrop-filter: blur(3px);
+/* Container de Seção (Com Efeito Vidro NOVO) */
+.section-container.glass-effect {
+    margin-bottom: 3rem;
+    padding: 32px;
+    border-radius: 24px;
+    /* Glassmorphism sobre o fundo original */
+    background: rgba(255, 255, 255, 0.85); 
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    box-shadow: 
+        0 20px 45px rgba(15, 23, 42, 0.1), 
+        0 0 0 1px rgba(255, 255, 255, 0.5) inset;
+    transition: transform 0.3s ease;
 }
 
-/* Títulos das seções */
 .section-container h3 {
-  font-size: 1.2rem;
-  color: var(--primary-color);
-  margin-bottom: 10px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
+    font-size: 1.3rem;
+    color: var(--primary-color);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
 }
 
 .subtitle {
-  color: var(--text-muted);
-  margin-bottom: 26px;
-  font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-bottom: 32px;
+    font-size: 0.95rem;
 }
 
 /* GRID de cards (Solicita Fácil) */
 .cards-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 28px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 24px;
 }
 
-/* Card de ação */
+/* CARD DE AÇÃO (Estilo Rayssen MANTIDO + Melhorias) */
 .card-action {
-  background: var(--white);
-  padding: 32px 24px;
-  border-radius: 20px;
-  text-align: center;
-  text-decoration: none;
-  color: var(--text-dark);
-  border: 1px solid rgba(226, 232, 240, 0.9);
-  box-shadow: var(--shadow-card);
-  transition: all 0.26s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  overflow: hidden;
+    background: var(--white);
+    padding: 32px 24px;
+    border-radius: 20px;
+    text-align: center;
+    text-decoration: none;
+    color: var(--text-dark);
+    /* Borda sutil */
+    border: 1px solid rgba(226, 232, 240, 0.8);
+    box-shadow: var(--shadow-card);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
 }
 
-/* Barra colorida no topo do card */
+/* Barra colorida no topo (Original Rayssen) */
 .card-action::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: linear-gradient(90deg, var(--primary-color), var(--primary-hover));
-  opacity: 0.8;
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary-color), var(--primary-hover));
+    opacity: 0.9;
 }
 
-/* Halo suave no hover */
-.card-action::after {
-  content: '';
-  position: absolute;
-  inset: 30% -20% -40%;
-  background: radial-gradient(circle at top, rgba(15, 23, 42, 0.06), transparent 60%);
-  opacity: 0;
-  transition: opacity 0.25s ease;
-}
-
+/* Efeito Hover (Elevação) */
 .card-action:hover {
-  transform: translateY(-6px);
-  box-shadow: var(--shadow-hover);
-  border-color: transparent;
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px -5px rgba(15, 23, 42, 0.15);
+    border-color: transparent;
 }
 
-.card-action:hover::after {
-  opacity: 1;
-}
-
-/* Estado “pressionado” */
-.card-action:active {
-  transform: translateY(-2px) scale(0.99);
-  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.25);
-}
-
-/* Ícone circular com arco animado */
+/* Ícone com Arco (Original Rayssen) */
 .icon-box {
-  position: relative;
-  width: 64px;
-  height: 64px;
-  margin: 0 auto 16px;
-  border-radius: 999px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 2rem;
-  color: var(--primary-color);
-  background: #ffffff;
-  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.18);
+    position: relative;
+    width: 68px;
+    height: 68px;
+    margin-bottom: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    color: var(--primary-color);
+    background: #ffffff;
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.12);
+    transition: transform 0.3s ease;
 }
 
-/* garante que nenhum estilo antigo de ::before apareça */
-.icon-box::before {
-  content: none;
-}
-
-/* Arco colorido em volta do ícone */
+/* Arco giratório no hover */
 .icon-box::after {
-  content: '';
-  position: absolute;
-  inset: -4px;
-  border-radius: inherit;
-  background: conic-gradient(
-    from 210deg,
-    #38bdf8,
-    #0ea5e9,
-    #1d4ed8,
-    #0f172a,
-    #38bdf8
-  );
-  mask: radial-gradient(farthest-side,
-          transparent calc(100% - 5px),
-          #000 calc(100% - 3px));
-  -webkit-mask: radial-gradient(farthest-side,
-          transparent calc(100% - 5px),
-          #000 calc(100% - 3px));
-  opacity: 0;
-  transform: rotate(-40deg);
-  transition: opacity 0.25s ease;
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: inherit;
+    background: conic-gradient(from 210deg, #38bdf8, #0ea5e9, #1d4ed8, transparent, #38bdf8);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 3px));
+    -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 3px));
 }
 
-/* animação do arco quando o card está em hover */
 .card-action:hover .icon-box::after {
-  opacity: 1;
-  animation: spin-arc 1.4s linear infinite;
+    opacity: 1;
+    animation: spin-arc 1.5s linear infinite;
 }
 
-/* leve reação do ícone junto */
-.card-action:hover .icon-box i {
-  transform: translateY(-1px);
-  transition: transform 0.2s ease;
+.card-action:hover .icon-box {
+    transform: scale(1.1);
+    color: #0284c7;
 }
 
-@keyframes spin-arc {
-  to { transform: rotate(320deg); }
-}
+@keyframes spin-arc { to { transform: rotate(360deg); } }
 
 .card-action h4 {
-  font-size: 1.1rem;
-  margin-bottom: 8px;
-  color: var(--primary-color);
+    font-size: 1.1rem;
+    margin-bottom: 8px;
+    color: var(--primary-color);
+    font-weight: 700;
 }
 
 .card-action p {
-  font-size: 0.9rem;
-  color: var(--text-muted);
-  line-height: 1.4;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    line-height: 1.4;
 }
 
-/* Cabeçalho da área de BI */
-.header-split {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-}
-
-/* Botão secundário (Atualizar dados) */
+/* Botão Secundário (Original Rayssen) */
 .btn-secondary {
-  background: var(--white);
-  border: 1px solid #cbd5e1;
-  color: var(--text-dark);
-  padding: 8px 16px;
-  border-radius: 999px;
-  font-size: 0.82rem;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  transition: all 0.2s ease;
-}
-
-.btn-secondary i {
-  font-size: 0.9rem;
+    position: relative;
+    background: radial-gradient(circle at top left, #fff, #f1f5f9);
+    border: 1px solid #cbd5e1;
+    color: var(--primary-color);
+    padding: 10px 24px;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 15px rgba(15, 23, 42, 0.1);
+    transition: all 0.2s ease;
 }
 
 .btn-secondary:hover {
-  background: #f8fafc;
-  border-color: #94a3b8;
-  transform: translateY(-1px);
-}
-/* Botões secundários (Ver / Novo Card / Atualizar) */
-.btn-secondary {
-  position: relative;
-  z-index: 0;
-
-  background: radial-gradient(circle at top left,
-              rgba(255, 255, 255, 0.98),
-              rgba(226, 232, 240, 0.96));
-  border: 1px solid rgba(148, 163, 184, 0.9);
-  color: var(--primary-color);
-
-  padding: 8px 18px;
-  border-radius: 999px;
-  font-size: 0.78rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-
-  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.18);
-  transition:
-    transform 0.18s ease,
-    box-shadow 0.18s ease,
-    border-color 0.18s ease,
-    color 0.18s ease;
-  overflow: hidden;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(15, 23, 42, 0.2);
+    color: #0f172a;
 }
 
-/* brilho suave de fundo no hover */
-.btn-secondary::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  border-radius: inherit;
-  background: linear-gradient(
-    120deg,
-    rgba(56, 189, 248, 0.25),
-    rgba(37, 99, 235, 0.28)
-  );
-  opacity: 0;
-  transition: opacity 0.18s ease;
-}
-
-.btn-secondary i {
-  font-size: 0.9rem;
-  opacity: 0.9;
-  transition: transform 0.18s ease, opacity 0.18s ease;
-}
-
-.btn-secondary:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 14px 32px rgba(15, 23, 42, 0.30);
-  border-color: transparent;
-  color: #0f172a;
-}
-
-.btn-secondary:hover::before {
-  opacity: 1;
-}
-
-.btn-secondary:hover i {
-  transform: translateX(2px);
-  opacity: 1;
-}
-
-/* Variação mais forte para "Novo Card" (opcional) */
-.btn-secondary--add {
-  background: linear-gradient(135deg, #0ea5e9, #1d4ed8);
-  color: #f9fafb;
-  border: none;
-  box-shadow: 0 16px 36px rgba(37, 99, 235, 0.45);
-}
-
-.btn-secondary--add::before {
-  background: radial-gradient(circle at 0% 0%,
-              rgba(248, 250, 252, 0.35),
-              transparent 55%);
-}
-
-.btn-secondary--add:hover {
-  transform: translateY(-1px);
-  filter: brightness(1.05);
-}
-
-/* Container do Power BI */
+/* Power BI Container */
 .bi-container {
-  background: radial-gradient(circle at top left,
-              rgba(7, 46, 75, 0.06) 0,
-              #ffffff 52%);
-  padding: 12px;
-  border-radius: 20px;
-  box-shadow: var(--shadow-card);
-  border: 1px solid #e2e8f0;
-  height: 650px;
-  overflow: hidden;
+    background: #ffffff;
+    padding: 8px;
+    border-radius: 20px;
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,0.05);
+    height: 650px;
+    overflow: hidden;
 }
 
 .bi-container iframe {
-  width: 100%;
-  height: 100%;
-  border-radius: 14px;
-  border: none;
-  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.35);
+    width: 100%;
+    height: 100%;
+    border-radius: 16px;
+    border: none;
+}
+
+.header-split {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+/* =========================================
+   MOBILE APP FEEL (Comportamento Inteligente)
+   ========================================= */
+@media (max-width: 768px) {
+    
+    .main-content {
+        padding: 0 16px 40px;
+    }
+
+    .section-container.glass-effect {
+        padding: 24px 20px;
+        background: rgba(255, 255, 255, 0.9);
+        margin-bottom: 2rem;
+    }
+
+    /* ----------------------------------------------------
+       MODO 1: CARROSSEL (Para Admin/Supervisor)
+       Mantém o BI visível sem rolar muito
+    ---------------------------------------------------- */
+    .cards-grid.mobile-mode-carousel {
+        display: flex; /* Transforma em linha */
+        overflow-x: auto; /* Rolagem lateral */
+        scroll-snap-type: x mandatory;
+        gap: 16px;
+        padding-bottom: 20px;
+        margin: 0 -20px;
+        padding-left: 20px;
+        padding-right: 20px;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none; 
+    }
+    
+    .cards-grid.mobile-mode-carousel::-webkit-scrollbar { display: none; }
+
+    /* Estilo dos Cards no Carrossel */
+    .cards-grid.mobile-mode-carousel .card-action {
+        min-width: 220px;
+        flex: 0 0 auto;
+        scroll-snap-align: center;
+        height: auto;
+        padding: 30px 20px;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+    }
+
+    /* CORREÇÃO DO BUG: Força cards ocultos a aparecerem no carrossel do celular */
+    .cards-grid.mobile-mode-carousel .hidden-card {
+        display: flex !important; 
+    }
+
+    /* Esconde o botão "Ver Mais" no modo carrossel (já dá pra arrastar) */
+    .mobile-mode-carousel ~ #expandContainer {
+        display: none !important;
+    }
+
+    /* ----------------------------------------------------
+       MODO 2: GRADE VERTICAL (Para Solicitante)
+       Lista tudo para baixo, já que não tem BI
+    ---------------------------------------------------- */
+    .cards-grid.mobile-mode-vertical {
+        display: grid;
+        grid-template-columns: 1fr; /* Um embaixo do outro */
+        gap: 16px;
+        margin: 0;
+        padding: 0;
+    }
+
+    /* Cards no modo vertical ficam mais compactos para não cansar o dedo */
+    .cards-grid.mobile-mode-vertical .card-action {
+        flex-direction: row; /* Ícone na esquerda, Texto na direita */
+        align-items: center;
+        text-align: left;
+        padding: 20px;
+        min-height: auto;
+    }
+
+    /* Ajustes internos do card no modo vertical */
+    .cards-grid.mobile-mode-vertical .icon-box {
+        width: 45px;
+        height: 45px;
+        font-size: 1.2rem;
+        margin-bottom: 0;
+        margin-right: 15px;
+    }
+
+    .cards-grid.mobile-mode-vertical .card-arrow {
+        position: static; /* Remove posição absoluta */
+        margin-left: auto; /* Empurra para o final */
+    }
+
+    /* ----------------------------------------------------
+       AJUSTES GERAIS MOBILE
+    ---------------------------------------------------- */
+    .bi-container { height: 450px; }
+    
+    .header-split {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 15px;
+    }
+    .header-split .btn-secondary { justify-content: center; }
 }
 
 /* =========================================

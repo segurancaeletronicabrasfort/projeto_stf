@@ -287,7 +287,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // =========================================================
-// FUNÇÃO EXTRA: CONTROLE DE CARDS (EXPANDIR/RECOLHER)
+// FUNÇÃO EXTRA: CONTROLE DE CARDS + LAYOUT MOBILE
 // =========================================================
 function setupCardsDisplay(role) {
     const cardsContainer = document.getElementById("cardsContainer");
@@ -298,41 +298,53 @@ function setupCardsDisplay(role) {
     const btnExpand = document.getElementById("btnExpandCards");
     const LIMIT = 4;
 
-    // Se for Solicitante, mostra TUDO e esconde o botão
+    // Remove classes antigas para garantir limpeza
+    cardsContainer.classList.remove('mobile-mode-carousel', 'mobile-mode-vertical');
+
+    // --- CENÁRIO 1: SOLICITANTE ---
+    // Mobile: Grade Vertical (Vê tudo descendo a tela)
+    // Desktop: Grade Normal (Vê tudo)
     if (role === 'solicitante') {
+        // Marca o container para o CSS saber que é vertical no mobile
+        cardsContainer.classList.add('mobile-mode-vertical');
+        
+        // Garante que todos os cards estão visíveis
         cards.forEach(card => card.classList.remove("hidden-card"));
+        
         if(expandContainer) expandContainer.style.display = "none";
         return;
     }
 
-    // Se for Admin ou Supervisor
+    // --- CENÁRIO 2: ADMIN / SUPERVISOR ---
+    // Mobile: Carrossel Horizontal (Para caber o BI embaixo)
+    // Desktop: Limite de 4 + Botão Expandir
+    
+    // Marca o container para o CSS ativar o carrossel no mobile
+    cardsContainer.classList.add('mobile-mode-carousel');
+
     if (cards.length > LIMIT) {
-        // Esconde os extras
+        // Esconde os excedentes (APENAS PARA O DESKTOP - O CSS Mobile vai corrigir isso)
         cards.forEach((card, index) => {
             if (index >= LIMIT) card.classList.add("hidden-card");
         });
 
-        // Mostra botão
+        // Mostra botão (No Desktop)
         if(expandContainer) expandContainer.style.display = "block";
 
         if (btnExpand) {
-            // Remove listeners antigos
             const newBtn = btnExpand.cloneNode(true);
             btnExpand.parentNode.replaceChild(newBtn, btnExpand);
 
             newBtn.addEventListener("click", () => {
                 const isExpanded = newBtn.getAttribute("data-expanded") === "true";
-
-                if (isExpanded) {
-                    // FECHAR
+                if (isExpanded) { // FECHAR
                     cards.forEach((card, index) => {
                         if (index >= LIMIT) card.classList.add("hidden-card");
                     });
                     newBtn.innerHTML = '<i class="fas fa-chevron-down"></i> Ver todos os serviços';
                     newBtn.setAttribute("data-expanded", "false");
                     cardsContainer.scrollIntoView({ behavior: 'smooth' });
-                } else {
-                    // ABRIR
+                } else { // ABRIR
                     cards.forEach(card => card.classList.remove("hidden-card"));
                     newBtn.innerHTML = '<i class="fas fa-chevron-up"></i> Recolher serviços';
                     newBtn.setAttribute("data-expanded", "true");

@@ -3,7 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Acesso Restrito - Portal ABV</title>
+    <title>Portal de Solicitações - Acesso Restrito</title>
+
+    <link rel="manifest" href="/static/manifest.json">
+    <meta name="theme-color" content="#072e4b">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="/static/assets/icon-192.png">
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -45,7 +50,7 @@
                 </form>
 
                 <div class="login-help">
-                    <a href="#">Problemas com acesso? Contate o DTI.</a>
+                    <a href="https://wa.me/5561996683994" target="_blank">Problemas com acesso? Contate o Suporte.</a>
                 </div>
             </div>
         </div>
@@ -56,6 +61,16 @@
         </footer>
 
     </main>
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/static/sw.js')
+                    .then(reg => console.log('PWA registrado!', reg.scope))
+                    .catch(err => console.log('Falha no PWA:', err));
+            });
+        }
+    </script>
 
     <script src="/static/script.js"></script>
 </body>
