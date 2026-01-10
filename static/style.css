@@ -40,170 +40,272 @@ a:focus-visible {
 }
 
 /* =========================================
-   2. LOGIN (index.html)
+   2. LOGIN (LAYOUT APP NATIVO)
    ========================================= */
 
-/* Barra fixa com logo (superior esquerda) */
-.top-bar {
-  position: fixed;
-  top: 16px;
-  left: 24px;
-  z-index: 10;
+/* Trava a rolagem geral da página de login */
+html, body.login-body-app {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden; /* OBRIGATÓRIO: Mata o scroll lateral e vertical */
+    font-family: 'Roboto', sans-serif;
+    background-color: #020617; /* Fundo de segurança */
 }
 
-.logo-stf-img {
-  height: 75px;
-  width: auto;
-  display: block;
+/* O Grande Container Flexível */
+.app-container {
+    height: 100dvh; /* Altura exata da tela visível */
+    width: 100vw;   /* Largura exata */
+    display: flex;
+    flex-direction: column; /* Pilha vertical */
+    justify-content: space-between; /* Espalha: Topo... Meio... Fundo */
+    align-items: center;
+    position: relative;
+    z-index: 1;
+    
+    /* Fundo Gradiente Principal */
+    background: radial-gradient(circle at top, #0b416d 0%, #072e4b 40%, #020b18 100%);
 }
 
-/* Wrapper do login */
-.login-wrapper {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  background: radial-gradient(circle at top, #0b416d 0%, #072e4b 40%, #020b18 100%);
+/* --- ANDAR 1: HEADER (LOGO) --- */
+.app-header {
+    flex: 0 0 auto;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding-top: 40px;
+    padding-bottom: 20px;
 }
 
-/* Cartão de login */
+/* O Link (Container da Logo) */
+.logo-link {
+    position: relative;
+    display: inline-block; /* Necessário para o overflow funcionar */
+    overflow: hidden;      /* Corta o brilho quando ele sai da área da logo */
+    border-radius: 12px;   /* Arredonda os cantos do brilho */
+    padding: 5px;          /* Um pequeno espaço para o glow não ser cortado */
+}
+
+/* O Efeito de Luz Passando (Shine) */
+.logo-link::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -150%; /* Começa escondido na esquerda */
+    width: 80%;  /* Largura do faixo de luz */
+    height: 100%;
+    
+    /* O gradiente da luz: Transparente > Branco Suave > Transparente */
+    background: linear-gradient(
+        to right,
+        transparent 0%,
+        rgba(255, 255, 255, 0.4) 50%,
+        transparent 100%
+    );
+    
+    transform: skewX(-25deg); /* Inclina a luz */
+    transition: none; /* Sem animação quando o mouse sai (reseta instantâneo) */
+    pointer-events: none; /* Garante que o clique passe para o link */
+    z-index: 2; /* Fica por cima da imagem */
+}
+
+/* Dispara a luz ao passar o mouse */
+.logo-link:hover::after {
+    left: 150%; /* Move para a direita */
+    transition: left 0.8s ease-in-out; /* Tempo da animação */
+}
+
+/* A Imagem da Logo em si */
+.logo-img {
+    height: 60px;
+    width: auto;
+    display: block;
+    
+    /* Prepara o zoom e o neon */
+    transition: transform 0.3s ease, filter 0.3s ease;
+    position: relative;
+    z-index: 1;
+}
+
+/* Efeito Neon/Zoom na imagem */
+.logo-link:hover .logo-img {
+    transform: scale(1.05);
+    /* Brilho Azulado ao redor das letras */
+    filter: drop-shadow(0 0 5px rgba(56, 189, 248, 0.8));
+}
+
+/* --- ANDAR 2: CONTENT (CARD) --- */
+.app-content {
+    flex: 1; /* Ocupa todo o espaço que sobrar no meio */
+    display: flex;
+    align-items: center; /* Centraliza o card verticalmente nesse espaço */
+    justify-content: center;
+    width: 100%;
+    padding: 0 20px; /* Margem lateral para mobile */
+}
+
 .login-card {
-  width: 100%;
-  max-width: 480px;
-  padding: 48px 40px;
-  border-radius: 24px;
-  background: var(--white);
-  color: var(--primary-color);
-  box-shadow:
-    0 25px 50px -12px rgba(0, 0, 0, 0.5),
-    0 0 0 1px rgba(7, 46, 75, 0.05);
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  animation: float-card 1s ease-out forwards;
+    width: 100%;
+    max-width: 420px; /* Largura máxima controlada */
+    padding: 40px 32px;
+    border-radius: 24px;
+    background: var(--white);
+    color: var(--primary-color);
+    box-shadow: 
+        0 25px 50px -12px rgba(0, 0, 0, 0.5),
+        0 0 0 1px rgba(7, 46, 75, 0.05);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    
+    /* Animação do Rayssen mantida */
+    animation: float-card 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
 }
 
 @keyframes float-card {
-  from { opacity: 0; transform: translateY(20px); }
-  to   { opacity: 1; transform: translateY(0); }
+    from { opacity: 0; transform: translateY(30px); }
+    to   { opacity: 1; transform: translateY(0); }
 }
 
-.login-card h1 {
-  margin: 0;
-  font-size: 2rem;
-  font-weight: 700;
-  color: var(--primary-color);
+.card-header h1 {
+    margin: 0;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--primary-color);
 }
 
-.login-card .login-subtitle {
-  margin: 8px 0 24px;
-  font-size: 0.95rem;
-  color: var(--text-muted);
-  line-height: 1.5;
+.login-subtitle {
+    margin: 8px 0 20px;
+    font-size: 0.9rem;
+    color: var(--text-muted);
 }
 
-/* Campos do formulário */
-.field {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-bottom: 16px;
-}
-
-.login-card label {
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: var(--primary-color);
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  transition: color 0.18s ease, transform 0.18s ease;
-}
-
-/* Animação leve no label quando o campo recebe foco */
-.field:focus-within label {
-  color: #0b416d;
-  transform: translateY(-1px);
+/* Inputs e Botões (Estilo Rayssen) */
+.field { margin-bottom: 12px; }
+.field label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 6px;
 }
 
 .login-card input {
-  width: 100%;
-  padding: 14px 16px;
-  border-radius: 12px;
-  border: 2px solid #e2e8f0;
-  background: #f8fafc;
-  color: #334155;
-  font-size: 1rem;
-  outline: none;
-  transition: all 0.2s ease;
+    width: 100%;
+    padding: 12px 16px;
+    border-radius: 12px;
+    border: 2px solid #e2e8f0;
+    background: #f8fafc;
+    color: #334155;
+    font-size: 1rem;
+    outline: none;
+    transition: all 0.2s ease;
 }
 
 .login-card input:focus {
-  border-color: var(--primary-color);
-  background: var(--white);
-  box-shadow: 0 0 0 4px rgba(7, 46, 75, 0.1);
+    border-color: var(--primary-color);
+    background: var(--white);
+    box-shadow: 0 0 0 4px rgba(7, 46, 75, 0.1);
 }
 
-/* Caixa de erro no login */
-.login-error {
-  display: none;
-  width: 100%;
-  margin-bottom: 16px;
-  padding: 10px 12px;
-  border-radius: 12px;
-  border: 1px solid #fecaca;
-  background: #fef2f2;
-  color: #b91c1c;
-  font-size: 0.85rem;
-  line-height: 1.4;
-  box-shadow: 0 8px 18px rgba(248, 113, 113, 0.25);
-}
-
-.login-error::before {
-  content: "!";
-  display: inline-block;
-  font-weight: 700;
-  margin-right: 8px;
-}
-
-.login-error.visible {
-  display: block;
-}
-
-/* animação leve no card quando der erro */
-@keyframes shake-login {
-  0%   { transform: translateX(0); }
-  20%  { transform: translateX(-4px); }
-  40%  { transform: translateX(4px); }
-  60%  { transform: translateX(-3px); }
-  80%  { transform: translateX(3px); }
-  100% { transform: translateX(0); }
-}
-
-.login-card.shake {
-  animation: shake-login 0.28s ease;
-}
-
-/* Botão principal do login */
 .login-card button {
-  margin-top: 12px;
-  width: 100%;
-  padding: 16px 0;
-  border-radius: 99px;
-  border: none;
-  background: var(--primary-color);
-  color: var(--white);
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  cursor: pointer;
-  box-shadow: 0 10px 20px rgba(7, 46, 75, 0.25);
-  transition: all 0.2s ease;
+    margin-top: 10px;
+    width: 100%;
+    padding: 14px 0;
+    border-radius: 99px;
+    border: none;
+    background: var(--primary-color);
+    color: var(--white);
+    font-weight: 700;
+    text-transform: uppercase;
+    cursor: pointer;
+    box-shadow: 0 10px 20px rgba(7, 46, 75, 0.25);
+    transition: all 0.2s ease;
 }
 
 .login-card button:hover {
-  background: var(--primary-hover);
-  transform: translateY(-2px);
+    background: var(--primary-hover);
+    transform: translateY(-2px);
+}
+
+.login-help { text-align: center; margin-top: 10px; }
+.login-help a { font-size: 0.8rem; color: #64748b; text-decoration: none; }
+
+/* Erro */
+.login-error {
+    display: none;
+    width: 100%;
+    margin-bottom: 10px;
+    padding: 10px;
+    border-radius: 8px;
+    background: #fef2f2;
+    color: #b91c1c;
+    border: 1px solid #fecaca;
+    font-size: 0.85rem;
+}
+.login-error.visible { display: block; }
+
+/* Shake Animation */
+@keyframes shake-login {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-4px); }
+    40%, 80% { transform: translateX(4px); }
+}
+.login-card.shake { animation: shake-login 0.3s ease; }
+
+/* --- ANDAR 3: FOOTER --- */
+.app-footer {
+    flex: 0 0 auto; /* Altura fixa */
+    width: 100%;
+    padding-bottom: 24px; /* Espaço para o dedo no celular */
+    text-align: center;
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+/* =========================================
+   AJUSTES FINAIS PARA MOBILE
+   ========================================= */
+@media (max-width: 480px) {
+    .app-container {
+        /* Garante fundo total no mobile */
+        background: radial-gradient(circle at center, #0b416d 0%, #020b18 100%);
+    }
+
+    .app-header {
+        padding-top: 30px; /* Um pouco menos de teto */
+    }
+
+    .logo-img {
+        height: 50px; /* Logo menor para celular */
+    }
+
+    .login-card {
+        padding: 30px 24px;
+        /* Removemos sombras pesadas no mobile para limpar o visual */
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3); 
+    }
+
+    .card-header h1 {
+        font-size: 1.5rem;
+    }
+}
+
+/* AJUSTE PARA TELAS BAIXAS (ex: iPhone SE na horizontal ou modelos antigos) */
+@media (max-height: 700px) {
+    .app-header { padding-top: 15px; padding-bottom: 10px; }
+    .logo-img { height: 40px; }
+    .app-footer { padding-bottom: 10px; }
+    .login-card { padding: 20px; gap: 10px; }
+    .card-header h1 { font-size: 1.4rem; }
 }
 
 /* =========================================
@@ -748,40 +850,167 @@ a:focus-visible {
 }
 
 /* =========================================
-   5. RESPONSIVIDADE
+   5. RESPONSIVIDADE (Mobile & Tablet)
    ========================================= */
 
 @media (max-width: 768px) {
 
+  /* --- NAVBAR --- */
   .navbar {
     padding: 0 16px;
     height: 60px;
   }
 
+  .nav-brand {
+    font-size: 0.9rem; /* Diminui a fonte da logo */
+    padding: 6px 12px;
+    letter-spacing: 0.1em;
+  }
+
+  .nav-user {
+    gap: 10px;
+  }
+
   .nav-user span {
-    display: none;      /* Esconde o "Olá, Usuário" no mobile */
+    display: none;      /* Esconde o "Olá, Usuário" para economizar espaço */
   }
 
+  .btn-logout {
+    padding: 6px 12px;  /* Botões menores */
+    font-size: 0.75rem;
+  }
+
+  /* --- LOGIN --- */
   .login-card {
-    padding: 32px 24px;
+    padding: 32px 20px; /* Menos espaçamento interno */
+    max-width: 90%;
+  }
+  
+  .login-wrapper::before {
+    width: 100%; /* Ajusta o glow do fundo */
   }
 
+  .login-footer-meta {
+    position: relative; /* Deixa de ser fixo no canto */
+    bottom: auto;
+    right: auto;
+    width: 100%;
+    justify-content: center; /* Centraliza */
+    margin-top: 30px;
+    padding-bottom: 20px;
+    text-align: center;
+  }
+
+  /* --- CONTEÚDO PRINCIPAL --- */
   .main-content {
-    margin: 40px auto 32px;
+    margin: 20px auto 32px; /* Sobe um pouco o conteúdo */
     padding: 0 16px 32px;
   }
 
   .section-container {
-    padding: 24px 18px 22px;
-    margin-bottom: 2.5rem;
+    padding: 20px 16px;
+    margin-bottom: 2rem;
+    border-radius: 16px;
   }
 
+  .section-container h3 {
+    font-size: 1rem; /* Título da seção menor */
+  }
+
+  /* Cabeçalhos divididos (Título + Botão) */
+  /* No celular, coloca um embaixo do outro */
+  .header-split {
+    flex-direction: column;
+    align-items: stretch; /* Estica para ocupar a largura */
+    gap: 15px;
+  }
+
+  .header-split .btn-secondary {
+    justify-content: center;
+    width: 100%; /* Botão "Atualizar" ocupa toda a largura */
+  }
+
+  /* --- CARDS (Solicita Fácil) --- */
   .cards-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr; /* Uma coluna só (um card embaixo do outro) */
+    gap: 20px;
   }
 
+  .card-action {
+    padding: 24px 20px; /* Card mais compacto */
+  }
+
+  /* --- POWER BI --- */
   .bi-container {
-    height: 480px;
+    height: 50vh;     /* Altura relativa à tela do celular */
+    min-height: 400px; /* Altura mínima garantida */
+    padding: 8px;
+  }
+
+  /* --- MODAL --- */
+  .modal-overlay {
+    align-items: flex-end; /* No celular, é comum o modal vir de baixo ou centro */
+  }
+
+  .modal-content,
+  .modal-box {
+    max-width: 100%;
+    width: 95%;        /* Ocupa quase toda a largura */
+    margin-bottom: 20px; /* Margem se estiver alinhado ao fundo */
+    border-radius: 20px;
+    padding: 20px;
+  }
+
+  .modal-header h3 {
+    font-size: 1.1rem;
+  }
+
+  /* Botões do modal empilhados no celular para facilitar o clique */
+  .modal-footer {
+    flex-direction: column-reverse; /* "Salvar" em cima, "Cancelar" embaixo */
+    gap: 12px;
+  }
+
+  .btn-modal {
+    width: 100%; /* Botões full width */
+    padding: 12px;
+  }
+
+  /* --- TABELA DE ADMIN --- */
+  .table-container {
+    padding: 10px;
+    border-radius: 12px;
+  }
+  
+  /* Ajuste para tabela não quebrar layout */
+  .user-table th, 
+  .user-table td {
+    padding: 10px 8px; /* Menos espaço nas células */
+    font-size: 0.8rem;
+  }
+  
+  .badge {
+    font-size: 0.65rem;
+    padding: 3px 8px;
+  }
+  
+  /* Botões de ação da tabela maiores para dedo */
+  .btn-icon {
+    font-size: 1.2rem; 
+    padding: 8px;
+    margin-right: 2px;
+  }
+}
+
+/* Ajuste extra para telas MUITO pequenas (iPhone SE, etc) */
+@media (max-width: 380px) {
+  .nav-brand {
+    font-size: 0.8rem;
+    padding: 6px 10px;
+  }
+  
+  .login-card h1 {
+    font-size: 1.6rem;
   }
 }
 

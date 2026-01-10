@@ -2,7 +2,7 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Acesso Restrito - Portal ABV</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -11,72 +11,51 @@
     
     <link rel="stylesheet" href="/static/style.css">
 </head>
-<body>
+<body class="login-body-app">
 
-    <!-- TOPO COM LOGO CLICÁVEL -->
-    <div class="top-bar">
-        <a
-          href="https://www.brasfort.com.br"
-          class="logo-stf"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-            <img
-              src="/static/assets/Logotipo_Horizontal_Branco.svg"
-              alt="Logo Brasfort"
-              class="logo-stf-img"
-            />
-        </a>
-    </div>
+    <main class="app-container">
+        
+        <header class="app-header">
+            <a href="https://www.brasfort.com.br" target="_blank" class="logo-link">
+                <img src="/static/assets/Logotipo_Horizontal_Branco.svg" alt="Logo Brasfort" class="logo-img">
+            </a>
+        </header>
 
-    <div class="login-wrapper">
-        <div class="login-card">
-            <div class="card-header">
-                <h1>Bem-vindo</h1>
-                <p class="login-subtitle">
-                    Insira suas credenciais institucionais para continuar.
-                </p>
-            </div>
-
-            <!-- Caixa de erro de login -->
-            <div id="loginError" class="login-error" role="alert" aria-live="polite"></div>
-
-            <form id="loginForm">
-                <div class="field">
-                    <label for="usuario">Identificação</label>
-                    <input
-                      type="text"
-                      id="usuario"
-                      placeholder="Usuário"
-                      required
-                      autocomplete="off"
-                    >
+        <div class="app-content">
+            <div class="login-card">
+                <div class="card-header">
+                    <h1>Bem-vindo</h1>
+                    <p class="login-subtitle">Insira suas credenciais institucionais.</p>
                 </div>
 
-                <div class="field">
-                    <label for="senha">Senha de Rede</label>
-                    <input
-                      type="password"
-                      id="senha"
-                      placeholder="••••••••"
-                      required
-                    >
-                </div>
-                
-                <button type="submit">Autenticar Acesso</button>
-            </form>
+                <div id="loginError" class="login-error"></div>
 
-            <div style="text-align: center; margin-top: 10px;">
-                <a href="#" style="color: #4b5563; font-size: 0.8rem; text-decoration: none;">
-                    Problemas com acesso? Contate o DTI.
-                </a>
+                <form id="loginForm">
+                    <div class="field">
+                        <label for="usuario">Identificação</label>
+                        <input type="text" id="usuario" placeholder="Usuário" required autocomplete="off">
+                    </div>
+
+                    <div class="field">
+                        <label for="senha">Senha de Rede</label>
+                        <input type="password" id="senha" placeholder="••••••••" required>
+                    </div>
+                    
+                    <button type="submit">Autenticar Acesso</button>
+                </form>
+
+                <div class="login-help">
+                    <a href="#">Problemas com acesso? Contate o DTI.</a>
+                </div>
             </div>
         </div>
-    </div>
-<div class="login-footer-meta">
-    <span>Portal de Solicitações· v1.0.0</span>
-    <span>Brasfort</span>
-</div>
+
+        <footer class="app-footer">
+            <span>Portal de Solicitações · v1.0.0</span>
+            <span>Brasfort</span>
+        </footer>
+
+    </main>
 
     <script src="/static/script.js"></script>
 </body>
