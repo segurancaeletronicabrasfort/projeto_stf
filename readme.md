@@ -6,6 +6,28 @@
 ## 📋 Visão Geral
 O **Portal ABV** é uma solução de alta governança desenvolvida para centralizar o acesso aos sistemas de segurança e manutenção predial. O sistema oferece autenticação segura, gestão de identidade (RBAC) e integração transparente com ferramentas de terceiros (PerformanceLab e Microsoft Power BI).
 
+---
+
+## 📸 Tour Visual
+
+### 1. Autenticação Institucional
+Tela de login minimalista com validação segura de credenciais e identidade visual do cliente.
+![Tela de Login](static\assets\screenshots/login.png)
+
+### 2. Dashboard Unificado (Visão Admin)
+Painel central que agrega os cartões de serviço do **PerformanceLab** (com funcionalidade de expandir/recolher) e o painel de indicadores do **Power BI** (visível apenas para Supervisores e Admins).
+![Dashboard Admin](static\assets\screenshots/dashboard_admin.png)static\assets\screenshots
+
+### 3. Gestão Rápida (Modal)
+Sem sair do dashboard, o administrador pode alterar senhas e criar novos usuários rapidamente através de um modal flutuante.
+![Modal de Configurações](static\assets\screenshots/modal_config.png)
+
+### 4. Painel Administrativo (CRUD)
+Área exclusiva para gestão completa da base de usuários. Permite listar, editar permissões e remover acessos.
+![Painel Admin](static\assets\screenshots/admin_crud.png)
+
+---
+
 ### 🚀 Principais Funcionalidades
 * **Autenticação Segura:** Login criptografado com padrão **OAuth2** e tokens **JWT**.
 * **Gestão de Perfis (RBAC):** Controle granular de acesso (Administrador, Supervisor, Solicitante).

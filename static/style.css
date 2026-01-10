@@ -787,7 +787,7 @@ a:focus-visible {
 
 /* Classe utilitária para esconder cards extras via JS */
 .hidden-card {
-    display: none;
+    display: none !important;
 }
 
 /* Animação suave ao aparecer (opcional) */
