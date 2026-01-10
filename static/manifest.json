@@ -1,6 +1,6 @@
 {
-  "name": "Portal de Solicitações ABV",
-  "short_name": "Portal ABV",
+  "name": "Portal de Solicitações",
+  "short_name": "Solicitações Brasfort",
   "start_url": "/dashboard",
   "display": "standalone",
   "background_color": "#020617",
