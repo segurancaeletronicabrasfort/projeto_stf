@@ -16,15 +16,15 @@ Tela de login minimalista com validação segura de credenciais e identidade vis
 
 ### 2. Dashboard Unificado (Visão Admin)
 Painel central que agrega os cartões de serviço do **PerformanceLab** (com funcionalidade de expandir/recolher) e o painel de indicadores do **Power BI** (visível apenas para Supervisores e Admins).
-![Dashboard Admin](static/assets/screenshots/dashboard_admin.png)
+![Dashboard Admin](static/assets/screenshots/dashboard_admin.png.png)
 
 ### 3. Gestão Rápida (Modal)
 Sem sair do dashboard, o administrador pode alterar senhas e criar novos usuários rapidamente através de um modal flutuante.
-![Modal de Configurações](static/assets/screenshots/modal_config.png)
+![Modal de Configurações](static/assets/screenshots/modal_config.png.png)
 
 ### 4. Painel Administrativo (CRUD)
 Área exclusiva para gestão completa da base de usuários. Permite listar, editar permissões e remover acessos.
-![Painel Admin](static/assets/screenshots/admin_crud.png)
+![Painel Admin](static/assets/screenshots/admin_crud.png.png)
 
 ---
 
