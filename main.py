@@ -1,16 +1,17 @@
 import logging
 import os
+import html
+import time
 from dotenv import load_dotenv
 from datetime import datetime, timedelta
 from typing import Optional, List
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator # Importação correta Pydantic V2
 
 # Framework e Utilitários Web
 from fastapi import FastAPI, Depends, HTTPException, status, Request
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from fastapi.responses import RedirectResponse
 
 # Segurança e Criptografia
 from passlib.context import CryptContext
@@ -25,7 +26,6 @@ from models import User
 load_dotenv()
 
 # --- CONFIGURAÇÕES DO AMBIENTE ---
-# Define se é produção ou desenvolvimento para esconder/mostrar docs
 ENVIRONMENT = os.getenv("ENVIRONMENT", "development") 
 SHOW_DOCS = ENVIRONMENT == "development"
 
@@ -40,7 +40,7 @@ logging.basicConfig(level=logging.INFO, filename="auditoria_acessos.log", format
 # Inicialização da App
 app = FastAPI(
     title="Portal ABV - STF Level",
-    docs_url="/docs" if SHOW_DOCS else None,   # Correção Vuln. #5 (Docs expostos)
+    docs_url="/docs" if SHOW_DOCS else None,
     redoc_url="/redoc" if SHOW_DOCS else None
 )
 
@@ -50,6 +50,13 @@ class UserCreate(BaseModel):
     password: str
     full_name: str
     role: str = "solicitante" 
+
+    # CORREÇÃO PYDANTIC V2: Usar @field_validator com @classmethod
+    @field_validator('full_name', 'username')
+    @classmethod
+    def sanitize_input(cls, v: str) -> str:
+        # Transforma <script> em &lt;script&gt;
+        return html.escape(v)
 
 class UserUpdate(BaseModel):
     full_name: Optional[str] = None
@@ -68,23 +75,20 @@ class UserResponse(BaseModel):
     disabled: bool
     
     class Config:
-        orm_mode = True
+        from_attributes = True # Pydantic V2 usa from_attributes em vez de orm_mode
 
 # --- ARQUIVOS ESTÁTICOS E TEMPLATES ---
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
 # --- UTILITÁRIOS DE SEGURANÇA ---
-# Correção: Argon2 como principal para evitar erros e aumentar segurança
 pwd_context = CryptContext(schemes=["argon2", "bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 def verify_password(plain_password, hashed_password):
-    """Verifica se a senha bate com o hash do banco."""
     return pwd_context.verify(plain_password, hashed_password)
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
-    """Gera o Token JWT assinado."""
     to_encode = data.copy()
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
@@ -98,17 +102,12 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
 # --- DEPENDÊNCIAS DE AUTENTICAÇÃO E AUTORIZAÇÃO ---
 
 async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
-    """
-    Nível 1 de Segurança: Verifica se o Token é válido e Assinado.
-    Correção Vuln. #1 (JWT Manipulation)
-    """
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Não foi possível validar as credenciais",
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
-        # AQUI ESTÁ A CHAVE: algorithms=[ALGORITHM] impede que o hacker mude o algoritmo do token
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username: str = payload.get("sub")
         if username is None:
@@ -116,7 +115,6 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
     except JWTError:
         raise credentials_exception
     
-    # Busca o usuário no banco DE NOVO para garantir que ele ainda existe e pegar a role atual
     user = db.query(User).filter(User.username == username).first()
     if user is None:
         raise credentials_exception
@@ -124,11 +122,6 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
     return user
 
 def get_current_admin_user(current_user: User = Depends(get_current_user)):
-    """
-    Nível 2 de Segurança: O 'Porteiro'.
-    Correção Vuln. #2 (RBAC Client-side)
-    Só permite passar se a role no BANCO DE DADOS for 'admin'.
-    """
     if current_user.role != "admin":
         logging.warning(f"ACESSO NEGADO: Usuário {current_user.username} tentou acessar rota de admin.")
         raise HTTPException(
@@ -145,7 +138,6 @@ async def read_login(request: Request):
 
 @app.get("/dashboard")
 async def read_dashboard(request: Request):
-    # Dica: Idealmente, o dashboard também deve validar token via JS no carregamento
     return templates.TemplateResponse("dashboard.html", {"request": request})
 
 @app.get("/admin_panel")
@@ -159,22 +151,29 @@ async def login_for_access_token(
     form_data: OAuth2PasswordRequestForm = Depends(), 
     db: Session = Depends(get_db)
 ):
+    # INICIO DO CONTROLE DE TEMPO (Timing Attack Prevention)
+    start_time = time.time()
+    
     user = db.query(User).filter(User.username == form_data.username).first()
     
-    # Mensagens de erro genéricas para evitar enumeração de usuários
-    error_msg = "Usuário ou senha incorretos"
-    
-    if not user:
-        logging.warning(f"LOGIN FALHO: Usuário {form_data.username} não encontrado.")
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=error_msg, headers={"WWW-Authenticate": "Bearer"})
+    # Se falhar (usuário não existe OU senha errada)
+    if not user or not verify_password(form_data.password, user.hashed_password):
         
-    if not verify_password(form_data.password, user.hashed_password):
-        logging.warning(f"LOGIN FALHO: Senha incorreta para {form_data.username}.")
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=error_msg, headers={"WWW-Authenticate": "Bearer"})
+        # FORÇA O SISTEMA A ESPERAR SE A RESPOSTA FOR RÁPIDA DEMAIS
+        process_time = time.time() - start_time
+        if process_time < 1.0:
+            time.sleep(1.0 - process_time) # Dorme até completar 1 segundo
+            
+        logging.warning(f"LOGIN FALHO: Tentativa inválida para {form_data.username}")
+        
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, 
+            detail="Usuário ou senha incorretos", 
+            headers={"WWW-Authenticate": "Bearer"}
+        )
     
+    # Se passar, segue normal...
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    
-    # Não confiamos na role que vem do front, pegamos do banco
     access_token = create_access_token(
         data={"sub": user.username, "role": user.role},
         expires_delta=access_token_expires
@@ -202,12 +201,10 @@ async def change_password(
     return {"message": "Senha alterada com sucesso!"}
 
 # --- ROTAS DE GESTÃO (PROTEGIDAS PARA ADMIN) ---
-# Todas aqui usam 'Depends(get_current_admin_user)'
 
 @app.post("/users/create")
 async def create_user(
     user_data: UserCreate, 
-    # SEGURANÇA APLICADA: Apenas admins passam daqui
     current_user: User = Depends(get_current_admin_user), 
     db: Session = Depends(get_db)
 ):
@@ -230,7 +227,6 @@ async def create_user(
 
 @app.get("/users", response_model=List[UserResponse])
 async def read_all_users(
-    # SEGURANÇA APLICADA
     current_user: User = Depends(get_current_admin_user),
     db: Session = Depends(get_db)
 ):
@@ -241,7 +237,6 @@ async def read_all_users(
 async def update_user(
     user_id: int,
     user_update: UserUpdate,
-    # SEGURANÇA APLICADA
     current_user: User = Depends(get_current_admin_user),
     db: Session = Depends(get_db)
 ):
@@ -263,7 +258,6 @@ async def update_user(
 @app.delete("/users/{user_id}")
 async def delete_user(
     user_id: int,
-    # SEGURANÇA APLICADA
     current_user: User = Depends(get_current_admin_user),
     db: Session = Depends(get_db)
 ):
