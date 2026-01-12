@@ -2,8 +2,25 @@ document.addEventListener("DOMContentLoaded", async () => {
     const token = localStorage.getItem("userToken");
 
     /* ======================================================
-       HELPERS: TOAST + REGRAS DE SENHA
+       HELPERS: SEGURANÇA (XSS) + TOAST + REGRAS
        ====================================================== */
+
+    // PROTEÇÃO CONTRA XSS: Transforma texto perigoso em texto seguro
+    function escapeHtml(text) {
+        if (!text) return "";
+        return text.toString()
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+    // Helper para escapar apenas aspas simples (usado dentro de onclick)
+    function escapeJsString(text) {
+        if (!text) return "";
+        return text.toString().replace(/'/g, "\\'");
+    }
 
     function ensureToastContainer() {
         let container = document.getElementById("toastContainer");
@@ -16,59 +33,34 @@ document.addEventListener("DOMContentLoaded", async () => {
         return container;
     }
 
-    // type: "info" | "success" | "error"
     function showToast(message, type = "info") {
         const container = ensureToastContainer();
-
         const toast = document.createElement("div");
         toast.className = `toast-notification ${type}`;
         toast.textContent = message;
-
         container.appendChild(toast);
-
-        // dispara animação
         requestAnimationFrame(() => {
             toast.classList.add("show");
         });
-
         setTimeout(() => {
             toast.classList.remove("show");
             setTimeout(() => toast.remove(), 300);
         }, 3500);
     }
 
-    // Regras de senha:
-    // - mínimo 8 caracteres
-    // - pelo menos 1 número
-    // - pelo menos 1 letra
-    // - pelo menos 1 letra MAIÚSCULA
-    // - sem espaços
     function validatePasswordRules(password) {
         const minLength = 8;
-
-        if (!password || password.length < minLength) {
-            return `A senha deve ter pelo menos ${minLength} caracteres.`;
-        }
-        if (/\s/.test(password)) {
-            return "A senha não pode conter espaços em branco.";
-        }
-        if (!/[0-9]/.test(password)) {
-            return "A senha deve conter pelo menos um número.";
-        }
-        if (!/[A-Z]/.test(password)) {
-            return "A senha deve conter pelo menos uma letra maiúscula.";
-        }
-        if (!/[a-zA-Z]/.test(password)) {
-            return "A senha deve conter pelo menos uma letra.";
-        }
-
+        if (!password || password.length < minLength) return `A senha deve ter pelo menos ${minLength} caracteres.`;
+        if (/\s/.test(password)) return "A senha não pode conter espaços em branco.";
+        if (!/[0-9]/.test(password)) return "A senha deve conter pelo menos um número.";
+        if (!/[A-Z]/.test(password)) return "A senha deve conter pelo menos uma letra maiúscula.";
+        if (!/[a-zA-Z]/.test(password)) return "A senha deve conter pelo menos uma letra.";
         return "";
     }
 
     /* ======================================================
        1. Segurança básica – só Admin entra aqui
        ====================================================== */
-
     if (!token) {
         window.location.href = "/";
         return;
@@ -89,7 +81,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     /* ======================================================
        2. Logout
        ====================================================== */
-
     const btnLogout = document.getElementById("btnLogout");
     if (btnLogout) {
         btnLogout.addEventListener("click", () => {
@@ -101,19 +92,16 @@ document.addEventListener("DOMContentLoaded", async () => {
     /* ======================================================
        Referências do modal de exclusão
        ====================================================== */
-
-    const confirmModal   = document.getElementById("confirmDeleteModal");
-    const confirmText    = document.getElementById("confirmDeleteText");
-    const confirmBtn     = document.getElementById("confirmDeleteBtn");
-    const cancelBtn      = document.getElementById("cancelDeleteBtn");
-
-    let deleteUserId   = null;
+    const confirmModal = document.getElementById("confirmDeleteModal");
+    const confirmText = document.getElementById("confirmDeleteText");
+    const confirmBtn = document.getElementById("confirmDeleteBtn");
+    const cancelBtn = document.getElementById("cancelDeleteBtn");
+    let deleteUserId = null;
     let deleteUsername = "";
 
     /* ======================================================
        3. Função para carregar usuários
        ====================================================== */
-
     async function loadUsers() {
         const tbody = document.getElementById("usersTableBody");
         if (!tbody) return;
@@ -131,9 +119,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 headers: { Authorization: `Bearer ${token}` },
             });
 
-            if (!response.ok) {
-                throw new Error("Falha ao buscar usuários");
-            }
+            if (!response.ok) throw new Error("Falha ao buscar usuários");
 
             const users = await response.json();
             tbody.innerHTML = "";
@@ -151,24 +137,37 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             users.forEach((user) => {
                 const tr = document.createElement("tr");
+                
+                // VARIAVEIS TRATADAS (Anti-XSS e Anti-Quebra de JS)
+                const safeUsername = escapeHtml(user.username);
+                const safeFullname = escapeHtml(user.full_name || "-");
+                const safeRole = escapeHtml(user.role);
+                const safeId = escapeHtml(user.id);
+                
+                // Para passar no onclick, precisamos escapar aspas simples especificamente
+                const jsFullname = escapeJsString(user.full_name || "");
+                const jsUsername = escapeJsString(user.username);
+                const jsRole = escapeJsString(user.role);
+
+                // Montagem Segura da Tabela
                 tr.innerHTML = `
-                    <td>${user.id}</td>
-                    <td><strong>${user.username}</strong></td>
-                    <td>${user.full_name || "-"}</td>
+                    <td>${safeId}</td>
+                    <td><strong>${safeUsername}</strong></td>
+                    <td>${safeFullname}</td>
                     <td>
-                        <span class="badge ${user.role}">
-                            ${user.role}
+                        <span class="badge ${safeRole}">
+                            ${safeRole}
                         </span>
                     </td>
                     <td>
                         <button class="btn-icon edit"
                                 title="Editar usuário"
-                                onclick="openEdit(${user.id}, '${user.full_name || ""}', '${user.role}')">
+                                onclick="openEdit(${user.id}, '${jsFullname}', '${jsRole}')">
                             <i class="fas fa-edit"></i>
                         </button>
                         <button class="btn-icon delete"
                                 title="Excluir usuário"
-                                onclick="deleteUser(${user.id}, '${user.username}')">
+                                onclick="deleteUser(${user.id}, '${jsUsername}')">
                             <i class="fas fa-trash"></i>
                         </button>
                     </td>
@@ -184,8 +183,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     /* ======================================================
        4. LÓGICA DE CRIAÇÃO (NOVO)
        ====================================================== */
-
-    // Abrir modal de criação (chamado pelo botão HTML)
     window.openCreateModal = () => {
         const form = document.getElementById("adminCreateUserForm");
         if (form) form.reset();
@@ -193,7 +190,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (modal) modal.style.display = "flex";
     };
 
-    // Enviar o formulário de criação
     const createForm = document.getElementById("adminCreateUserForm");
     if (createForm) {
         createForm.addEventListener("submit", async (e) => {
@@ -202,9 +198,8 @@ document.addEventListener("DOMContentLoaded", async () => {
             const fullName = document.getElementById("createFullName").value.trim();
             const username = document.getElementById("createUsername").value.trim();
             const password = document.getElementById("createPassword").value;
-            const role     = document.getElementById("createRole").value;
+            const role = document.getElementById("createRole").value;
 
-            // Regras de senha
             const pwdError = validatePasswordRules(password);
             if (pwdError) {
                 showToast(pwdError, "error");
@@ -237,7 +232,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 }
             } catch (error) {
                 console.error(error);
-                showToast("Erro de conexão ao tentar criar usuário.", "error");
+                showToast("Erro de conexão.", "error");
             }
         });
     }
@@ -248,7 +243,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     /* ======================================================
        5. Lógica de edição
        ====================================================== */
-
     window.openEdit = (id, name, role) => {
         const modal = document.getElementById("editUserModal");
         if (!modal) return;
@@ -268,15 +262,14 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             const id = document.getElementById("editUserId").value;
             const newFullName = document.getElementById("editFullName").value;
-            const newRole     = document.getElementById("editRole").value;
-            const newPass     = document.getElementById("editPassword").value;
+            const newRole = document.getElementById("editRole").value;
+            const newPass = document.getElementById("editPassword").value;
 
             const body = {
                 full_name: newFullName,
                 role: newRole,
             };
 
-            // Só valida/enviamos senha se o campo tiver sido preenchido
             if (newPass) {
                 const pwdError = validatePasswordRules(newPass);
                 if (pwdError) {
@@ -309,7 +302,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 showToast("Usuário atualizado com sucesso.", "success");
             } catch (err) {
                 console.error(err);
-                showToast("Erro de conexão ao atualizar usuário.", "error");
+                showToast("Erro de conexão.", "error");
             }
         });
     }
@@ -317,10 +310,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     /* ======================================================
        6. Lógica de exclusão usando MODAL
        ====================================================== */
-
     window.deleteUser = (id, username) => {
         if (!confirmModal) {
-            // fallback: se o modal não existir
             if (confirm(`Tem certeza que deseja EXCLUIR o usuário ${username}?`)) {
                 performDelete(id);
             }
@@ -335,7 +326,6 @@ document.addEventListener("DOMContentLoaded", async () => {
                 `Tem certeza que deseja excluir o usuário "${username}"? ` +
                 `Essa ação não poderá ser desfeita.`;
         }
-
         confirmModal.style.display = "flex";
     };
 
@@ -380,7 +370,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
     }
 
-    // Função global de fechar modal (X dos modais)
     window.closeModal = (id) => {
         const m = document.getElementById(id);
         if (m) m.style.display = "none";

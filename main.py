@@ -2,7 +2,7 @@ import logging
 import os
 from dotenv import load_dotenv
 from datetime import datetime, timedelta
-from typing import Optional
+from typing import Optional, List
 from pydantic import BaseModel
 
 # Framework e Utilitários Web
@@ -24,22 +24,32 @@ from models import User
 # Carrega as variáveis do arquivo .env
 load_dotenv()
 
+# --- CONFIGURAÇÕES DO AMBIENTE ---
+# Define se é produção ou desenvolvimento para esconder/mostrar docs
+ENVIRONMENT = os.getenv("ENVIRONMENT", "development") 
+SHOW_DOCS = ENVIRONMENT == "development"
+
 # --- CONFIGURAÇÕES DE SEGURANÇA ---
-SECRET_KEY = os.getenv("SECRET_KEY", "chave_padrao_insegura")
+SECRET_KEY = os.getenv("SECRET_KEY", "chave_padrao_insegura_mude_em_producao")
 ALGORITHM = os.getenv("ALGORITHM", "HS256")
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 30))
 
 # Configuração de Logs
 logging.basicConfig(level=logging.INFO, filename="auditoria_acessos.log", format="%(asctime)s - %(message)s")
 
-app = FastAPI(title="Portal ABV - STF Level")
+# Inicialização da App
+app = FastAPI(
+    title="Portal ABV - STF Level",
+    docs_url="/docs" if SHOW_DOCS else None,   # Correção Vuln. #5 (Docs expostos)
+    redoc_url="/redoc" if SHOW_DOCS else None
+)
 
 # --- SCHEMAS (Modelos de Entrada) ---
 class UserCreate(BaseModel):
     username: str
     password: str
     full_name: str
-    role: str = "solicitante" # Opções: 'admin', 'supervisor', 'solicitante'
+    role: str = "solicitante" 
 
 class UserUpdate(BaseModel):
     full_name: Optional[str] = None
@@ -50,11 +60,22 @@ class UserPasswordUpdate(BaseModel):
     old_password: str
     new_password: str
 
+class UserResponse(BaseModel):
+    id: int
+    username: str
+    full_name: str
+    role: str
+    disabled: bool
+    
+    class Config:
+        orm_mode = True
+
 # --- ARQUIVOS ESTÁTICOS E TEMPLATES ---
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
 # --- UTILITÁRIOS DE SEGURANÇA ---
+# Correção: Argon2 como principal para evitar erros e aumentar segurança
 pwd_context = CryptContext(schemes=["argon2", "bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
@@ -74,14 +95,20 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
+# --- DEPENDÊNCIAS DE AUTENTICAÇÃO E AUTORIZAÇÃO ---
+
 async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
-    """Decodifica o token para identificar o usuário atual (Middleware)."""
+    """
+    Nível 1 de Segurança: Verifica se o Token é válido e Assinado.
+    Correção Vuln. #1 (JWT Manipulation)
+    """
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Não foi possível validar as credenciais",
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
+        # AQUI ESTÁ A CHAVE: algorithms=[ALGORITHM] impede que o hacker mude o algoritmo do token
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username: str = payload.get("sub")
         if username is None:
@@ -89,10 +116,26 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
     except JWTError:
         raise credentials_exception
     
+    # Busca o usuário no banco DE NOVO para garantir que ele ainda existe e pegar a role atual
     user = db.query(User).filter(User.username == username).first()
     if user is None:
         raise credentials_exception
+        
     return user
+
+def get_current_admin_user(current_user: User = Depends(get_current_user)):
+    """
+    Nível 2 de Segurança: O 'Porteiro'.
+    Correção Vuln. #2 (RBAC Client-side)
+    Só permite passar se a role no BANCO DE DADOS for 'admin'.
+    """
+    if current_user.role != "admin":
+        logging.warning(f"ACESSO NEGADO: Usuário {current_user.username} tentou acessar rota de admin.")
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, 
+            detail="Você não tem permissão de administrador."
+        )
+    return current_user
 
 # --- ROTAS DE PÁGINAS (FRONTEND) ---
 
@@ -102,41 +145,36 @@ async def read_login(request: Request):
 
 @app.get("/dashboard")
 async def read_dashboard(request: Request):
+    # Dica: Idealmente, o dashboard também deve validar token via JS no carregamento
     return templates.TemplateResponse("dashboard.html", {"request": request})
 
-# --- ROTAS DE API (BACKEND) ---
+@app.get("/admin_panel")
+async def read_admin_panel(request: Request):
+    return templates.TemplateResponse("admin.html", {"request": request})
+
+# --- ROTAS DE API (AUTENTICAÇÃO) ---
 
 @app.post("/token")
 async def login_for_access_token(
     form_data: OAuth2PasswordRequestForm = Depends(), 
     db: Session = Depends(get_db)
 ):
-    """
-    Recebe usuário e senha, valida no Banco de Dados SQLite
-    e retorna o Token de acesso.
-    """
-    # Busca o usuário no banco
     user = db.query(User).filter(User.username == form_data.username).first()
     
-    # Validações
+    # Mensagens de erro genéricas para evitar enumeração de usuários
+    error_msg = "Usuário ou senha incorretos"
+    
     if not user:
-        logging.warning(f"TENTATIVA FALHA (Usuário não existe): {form_data.username}")
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Credenciais incorretas",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+        logging.warning(f"LOGIN FALHO: Usuário {form_data.username} não encontrado.")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=error_msg, headers={"WWW-Authenticate": "Bearer"})
         
     if not verify_password(form_data.password, user.hashed_password):
-        logging.warning(f"TENTATIVA FALHA (Senha incorreta): {form_data.username}")
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Credenciais incorretas",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+        logging.warning(f"LOGIN FALHO: Senha incorreta para {form_data.username}.")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=error_msg, headers={"WWW-Authenticate": "Bearer"})
     
-    # Sucesso
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    
+    # Não confiamos na role que vem do front, pegamos do banco
     access_token = create_access_token(
         data={"sub": user.username, "role": user.role},
         expires_delta=access_token_expires
@@ -145,33 +183,38 @@ async def login_for_access_token(
     logging.info(f"LOGIN SUCESSO: {user.username} ({user.role})")
     return {"access_token": access_token, "token_type": "bearer"}
 
-@app.get("/users/me")
+@app.get("/users/me", response_model=UserResponse)
 async def read_users_me(current_user: User = Depends(get_current_user)):
-    """Rota para o Frontend verificar se o token ainda é válido."""
-    return {"username": current_user.username, "full_name": current_user.full_name, "role": current_user.role}
+    return current_user
 
-# --- ROTAS DE GESTÃO DE USUÁRIOS ---
+@app.post("/users/me/password")
+async def change_password(
+    password_data: UserPasswordUpdate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    if not verify_password(password_data.old_password, current_user.hashed_password):
+        raise HTTPException(status_code=400, detail="Senha atual incorreta.")
+    
+    current_user.hashed_password = pwd_context.hash(password_data.new_password)
+    db.commit()
+    logging.info(f"SENHA ALTERADA: Usuário {current_user.username}")
+    return {"message": "Senha alterada com sucesso!"}
+
+# --- ROTAS DE GESTÃO (PROTEGIDAS PARA ADMIN) ---
+# Todas aqui usam 'Depends(get_current_admin_user)'
 
 @app.post("/users/create")
 async def create_user(
     user_data: UserCreate, 
-    current_user: User = Depends(get_current_user), # Exige estar logado
+    # SEGURANÇA APLICADA: Apenas admins passam daqui
+    current_user: User = Depends(get_current_admin_user), 
     db: Session = Depends(get_db)
 ):
-    """
-    Cria novo usuário. Apenas ADMINS podem fazer isso.
-    """
-    # 1. Verifica Permissão
-    if current_user.role != "admin":
-        logging.warning(f"TENTATIVA NÃO AUTORIZADA: {current_user.username} tentou criar usuário.")
-        raise HTTPException(status_code=403, detail="Apenas administradores podem criar usuários.")
-
-    # 2. Verifica se usuário já existe
     existing_user = db.query(User).filter(User.username == user_data.username).first()
     if existing_user:
         raise HTTPException(status_code=400, detail="Nome de usuário indisponível.")
 
-    # 3. Cria o usuário
     hashed_password = pwd_context.hash(user_data.password)
     new_user = User(
         username=user_data.username,
@@ -182,47 +225,15 @@ async def create_user(
     
     db.add(new_user)
     db.commit()
-    
-    logging.info(f"USUÁRIO CRIADO: {user_data.username} criado por {current_user.username}")
+    logging.info(f"ADMIN AÇÃO: {current_user.username} criou usuário {user_data.username}")
     return {"message": f"Usuário {user_data.username} criado com sucesso!"}
 
-
-@app.post("/users/me/password")
-async def change_password(
-    password_data: UserPasswordUpdate,
-    current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
-):
-    """
-    Usuário logado troca a própria senha.
-    """
-    # 1. Verifica se a senha antiga está correta
-    if not verify_password(password_data.old_password, current_user.hashed_password):
-        raise HTTPException(status_code=400, detail="Senha atual incorreta.")
-    
-    # 2. Atualiza para a nova senha
-    current_user.hashed_password = pwd_context.hash(password_data.new_password)
-    db.commit()
-    
-    logging.info(f"SENHA ALTERADA: Usuário {current_user.username} alterou sua senha.")
-    return {"message": "Senha alterada com sucesso!"}
-
-# --- ROTAS DA PÁGINA ADMIN (CRUD COMPLETO) ---
-
-@app.get("/admin_panel")
-async def read_admin_panel(request: Request):
-    """Serve a página HTML do Admin."""
-    return templates.TemplateResponse("admin.html", {"request": request})
-
-@app.get("/users")
+@app.get("/users", response_model=List[UserResponse])
 async def read_all_users(
-    current_user: User = Depends(get_current_user),
+    # SEGURANÇA APLICADA
+    current_user: User = Depends(get_current_admin_user),
     db: Session = Depends(get_db)
 ):
-    """Lista TODOS os usuários (Apenas Admin vê)."""
-    if current_user.role != "admin":
-        raise HTTPException(status_code=403, detail="Acesso negado.")
-    # Retorna todos os usuários (sem a senha hashada por segurança visual)
     users = db.query(User).all()
     return users
 
@@ -230,18 +241,14 @@ async def read_all_users(
 async def update_user(
     user_id: int,
     user_update: UserUpdate,
-    current_user: User = Depends(get_current_user),
+    # SEGURANÇA APLICADA
+    current_user: User = Depends(get_current_admin_user),
     db: Session = Depends(get_db)
 ):
-    """Atualiza dados de um usuário específico."""
-    if current_user.role != "admin":
-        raise HTTPException(status_code=403, detail="Acesso negado.")
-    
     db_user = db.query(User).filter(User.id == user_id).first()
     if not db_user:
         raise HTTPException(status_code=404, detail="Usuário não encontrado")
 
-    # Atualiza campos se foram enviados
     if user_update.full_name:
         db_user.full_name = user_update.full_name
     if user_update.role:
@@ -250,20 +257,16 @@ async def update_user(
         db_user.hashed_password = pwd_context.hash(user_update.password)
     
     db.commit()
-    logging.info(f"ADMIN {current_user.username} editou usuário {db_user.username}")
+    logging.info(f"ADMIN AÇÃO: {current_user.username} atualizou {db_user.username}")
     return {"message": "Usuário atualizado com sucesso"}
 
 @app.delete("/users/{user_id}")
 async def delete_user(
     user_id: int,
-    current_user: User = Depends(get_current_user),
+    # SEGURANÇA APLICADA
+    current_user: User = Depends(get_current_admin_user),
     db: Session = Depends(get_db)
 ):
-    """Deleta um usuário."""
-    if current_user.role != "admin":
-        raise HTTPException(status_code=403, detail="Acesso negado.")
-    
-    # Impede o admin de se auto-deletar
     if current_user.id == user_id:
         raise HTTPException(status_code=400, detail="Você não pode deletar a si mesmo.")
 
@@ -273,6 +276,5 @@ async def delete_user(
     
     db.delete(db_user)
     db.commit()
-    
-    logging.info(f"ADMIN {current_user.username} deletou usuário {db_user.username}")
+    logging.info(f"ADMIN AÇÃO: {current_user.username} deletou {db_user.username}")
     return {"message": "Usuário deletado com sucesso"}

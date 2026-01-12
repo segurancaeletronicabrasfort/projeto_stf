@@ -397,7 +397,7 @@ body.dashboard-body {
   border: 1px solid rgba(255, 255, 255, 0.18);
   color: var(--white);
 
-  padding: 8px 10px;                 /* um pouco menor sem texto */
+  padding: 8px 10px 8px 15px;                 /* um pouco menor sem texto */
   border-radius: 999px;
   cursor: pointer;
   font-size: 0.82rem;

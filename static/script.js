@@ -5,6 +5,20 @@ document.addEventListener("DOMContentLoaded", () => {
     const isLoginPage = path === "/" || path.includes("index.html");
     const isDashboard = path.includes("dashboard") || path.includes("dashboard.html");
 
+    // --- HELPER: PARSE JWT SEGURO (UTF-8) ---
+    function parseJwt(token) {
+        try {
+            const base64Url = token.split('.')[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+            return JSON.parse(jsonPayload);
+        } catch (e) {
+            return null;
+        }
+    }
+
     // Helper global de toast (sucesso/erro)
     function showToast(message, type = "success", title) {
         const toast = document.getElementById("appToast");
@@ -152,7 +166,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 const nomeParaMostrar = user.full_name || user.username || "Usuário";
                 
                 // Exibe nome e cargo formatado
-                const cargo = user.role.charAt(0).toUpperCase() + user.role.slice(1);
+                // const cargo = user.role.charAt(0).toUpperCase() + user.role.slice(1);
                 userDisplay.innerHTML = `Olá, ${nomeParaMostrar}`;
                 
                 localStorage.setItem("userFullName", nomeParaMostrar);
@@ -165,27 +179,33 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // --- 2.3 Controle de Acesso (RBAC) & Cards ---
         try {
-            const payload = JSON.parse(atob(token.split('.')[1]));
-            const role = payload.role; // 'admin', 'supervisor' ou 'solicitante'
+            // CORREÇÃO: Usando parseJwt em vez de atob direto para evitar bugs de acentuação
+            const payload = parseJwt(token);
+            
+            if (payload) {
+                const role = payload.role; // 'admin', 'supervisor' ou 'solicitante'
 
-            // APLICA A LÓGICA DOS CARDS (Chama a função nova)
-            setupCardsDisplay(role);
+                // APLICA A LÓGICA DOS CARDS
+                setupCardsDisplay(role);
 
-            // Elementos da tela
-            const adminArea = document.getElementById("adminArea");
-            const biSection = document.getElementById("biSection");
+                // Elementos da tela
+                const adminArea = document.getElementById("adminArea");
+                const biSection = document.getElementById("biSection");
 
-            // Lógica de Visibilidade (Quem vê o quê)
-            if (role === 'admin') {
-                if(adminArea) adminArea.style.display = "block";
-                if(biSection) biSection.style.display = "block";
-            } else if (role === 'supervisor') {
-                if(adminArea) adminArea.style.display = "none";
-                if(biSection) biSection.style.display = "block";
+                // Lógica de Visibilidade
+                if (role === 'admin') {
+                    if(adminArea) adminArea.style.display = "block";
+                    if(biSection) biSection.style.display = "block";
+                } else if (role === 'supervisor') {
+                    if(adminArea) adminArea.style.display = "none";
+                    if(biSection) biSection.style.display = "block";
+                } else {
+                    // SOLICITANTE: Não vê admin nem BI
+                    if(adminArea) adminArea.style.display = "none";
+                    if(biSection) biSection.style.display = "none";
+                }
             } else {
-                // SOLICITANTE: Não vê admin nem BI
-                if(adminArea) adminArea.style.display = "none";
-                if(biSection) biSection.style.display = "none";
+                console.error("Token inválido ou corrompido.");
             }
 
         } catch (e) {
@@ -250,39 +270,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             });
         }
-
-        // --- 2.7 Criar Usuário (Admin) ---
-        const createUserForm = document.getElementById("createUserForm");
-        if (createUserForm) {
-            createUserForm.addEventListener("submit", async (e) => {
-                e.preventDefault();
-                const uName = document.getElementById("newUsername").value;
-                const uFull = document.getElementById("newFullname").value;
-                const uPass = document.getElementById("newUserPass").value;
-                const uRole = document.getElementById("newUserRole").value;
-
-                try {
-                    const response = await fetch("/users/create", {
-                        method: "POST",
-                        headers: { 
-                            "Content-Type": "application/json",
-                            "Authorization": `Bearer ${token}` 
-                        },
-                        body: JSON.stringify({ username: uName, password: uPass, full_name: uFull, role: uRole })
-                    });
-
-                    if (response.ok) {
-                        showToast(`Usuário ${uName} criado!`, "success");
-                        createUserForm.reset();
-                    } else {
-                        const err = await response.json();
-                        showToast(err.detail || "Erro ao criar.", "error");
-                    }
-                } catch (error) {
-                    showToast("Erro de conexão.", "error");
-                }
-            });
-        }
     }
 });
 
@@ -302,33 +289,21 @@ function setupCardsDisplay(role) {
     cardsContainer.classList.remove('mobile-mode-carousel', 'mobile-mode-vertical');
 
     // --- CENÁRIO 1: SOLICITANTE ---
-    // Mobile: Grade Vertical (Vê tudo descendo a tela)
-    // Desktop: Grade Normal (Vê tudo)
     if (role === 'solicitante') {
-        // Marca o container para o CSS saber que é vertical no mobile
         cardsContainer.classList.add('mobile-mode-vertical');
-        
-        // Garante que todos os cards estão visíveis
         cards.forEach(card => card.classList.remove("hidden-card"));
-        
         if(expandContainer) expandContainer.style.display = "none";
         return;
     }
 
     // --- CENÁRIO 2: ADMIN / SUPERVISOR ---
-    // Mobile: Carrossel Horizontal (Para caber o BI embaixo)
-    // Desktop: Limite de 4 + Botão Expandir
-    
-    // Marca o container para o CSS ativar o carrossel no mobile
     cardsContainer.classList.add('mobile-mode-carousel');
 
     if (cards.length > LIMIT) {
-        // Esconde os excedentes (APENAS PARA O DESKTOP - O CSS Mobile vai corrigir isso)
         cards.forEach((card, index) => {
             if (index >= LIMIT) card.classList.add("hidden-card");
         });
 
-        // Mostra botão (No Desktop)
         if(expandContainer) expandContainer.style.display = "block";
 
         if (btnExpand) {
