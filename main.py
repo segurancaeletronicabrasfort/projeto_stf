@@ -5,7 +5,8 @@ import time
 from dotenv import load_dotenv
 from datetime import datetime, timedelta
 from typing import Optional, List
-from pydantic import BaseModel, field_validator # Importação correta Pydantic V2
+from pydantic import BaseModel, field_validator
+from starlette.middleware.base import BaseHTTPMiddleware
 
 # Framework e Utilitários Web
 from fastapi import FastAPI, Depends, HTTPException, status, Request
@@ -39,10 +40,34 @@ logging.basicConfig(level=logging.INFO, filename="auditoria_acessos.log", format
 
 # Inicialização da App
 app = FastAPI(
-    title="Portal ABV - STF Level",
+    title="Portal de Solicitações",
     docs_url="/docs" if SHOW_DOCS else None,
     redoc_url="/redoc" if SHOW_DOCS else None
 )
+
+# =================================================================
+# MIDDLEWARE DE SEGURANÇA (HEADERS) - ADICIONE ISSO AQUI
+# =================================================================
+class SecurityHeadersMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        response = await call_next(request)
+        
+        # 1. Proteção contra Clickjacking
+        response.headers["X-Frame-Options"] = "DENY"
+        
+        # 2. Proteção contra MIME Sniffing
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        
+        # 3. Força HTTPS (HSTS) - O navegador vai ignorar isso no localhost (http), 
+        # mas é importante o header estar lá para quando for pra produção (https)
+        response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+        
+        # 4. Esconde a tecnologia do servidor (Uvicorn)
+        response.headers["Server"] = "Hidden" 
+        
+        return response
+
+app.add_middleware(SecurityHeadersMiddleware)
 
 # --- SCHEMAS (Modelos de Entrada) ---
 class UserCreate(BaseModel):
