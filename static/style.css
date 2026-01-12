@@ -82,7 +82,7 @@ body.dashboard-body {
     background: radial-gradient(circle at top, #0b416d 0%, #072e4b 40%, #020b18 100%);
 }
 
-/* --- ANDAR 1: HEADER (LOGO) --- */
+/* --- LOGO VETORIAL ANIMADA (SVG ORIGINAL) --- */
 .app-header {
     flex: 0 0 auto;
     width: 100%;
@@ -92,61 +92,75 @@ body.dashboard-body {
     padding-bottom: 20px;
 }
 
-/* O Link (Container da Logo) */
 .logo-link {
-    position: relative;
-    display: inline-block; /* Necessário para o overflow funcionar */
-    overflow: hidden;      /* Corta o brilho quando ele sai da área da logo */
-    border-radius: 12px;   /* Arredonda os cantos do brilho */
-    padding: 5px;          /* Um pequeno espaço para o glow não ser cortado */
-}
-
-/* O Efeito de Luz Passando (Shine) */
-.logo-link::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -150%; /* Começa escondido na esquerda */
-    width: 80%;  /* Largura do faixo de luz */
-    height: 100%;
-    
-    /* O gradiente da luz: Transparente > Branco Suave > Transparente */
-    background: linear-gradient(
-        to right,
-        transparent 0%,
-        rgba(255, 255, 255, 0.4) 50%,
-        transparent 100%
-    );
-    
-    transform: skewX(-25deg); /* Inclina a luz */
-    transition: none; /* Sem animação quando o mouse sai (reseta instantâneo) */
-    pointer-events: none; /* Garante que o clique passe para o link */
-    z-index: 2; /* Fica por cima da imagem */
-}
-
-/* Dispara a luz ao passar o mouse */
-.logo-link:hover::after {
-    left: 150%; /* Move para a direita */
-    transition: left 0.8s ease-in-out; /* Tempo da animação */
-}
-
-/* A Imagem da Logo em si */
-.logo-img {
-    height: 100px; /* Ajusta o tamanho do logo */
-    width: auto;
     display: block;
-    
-    /* Prepara o zoom e o neon */
-    transition: transform 0.3s ease, filter 0.3s ease;
-    position: relative;
-    z-index: 1;
+    /* Ajuste de tamanho baseado na proporção do SVG original (1195x423) */
+    width: 280px; 
+    height: auto;
+    cursor: pointer;
 }
 
-/* Efeito Neon/Zoom na imagem */
-.logo-link:hover .logo-img {
-    transform: scale(1.05);
-    /* Brilho Azulado ao redor das letras */
-    filter: drop-shadow(0 0 5px rgba(56, 189, 248, 0.8));
+.logo-svg {
+    width: 100%;
+    height: 100%;
+    overflow: visible; /* Permite o brilho (glow) vazar pra fora */
+}
+
+/* CONFIGURAÇÃO BASE DAS FORMAS */
+.logo-path {
+    fill: #ffffff;       /* Preenchimento Branco Sólido */
+    stroke: transparent; /* Sem borda inicialmente */
+    stroke-width: 15px;  /* Largura do traço (baseado na escala do SVG original) */
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: all 0.5s ease;
+}
+
+/* --- A MÁGICA DO HOVER (Neon + Desenho) --- */
+
+.logo-link:hover .logo-path {
+    /* 1. Esvazia o recheio (fica transparente) */
+    fill: rgba(255, 255, 255, 0.05);
+    
+    /* 2. Acende a borda com Ciano */
+    stroke: #38bdf8;
+    
+    /* 3. Prepara a animação de desenho */
+    stroke-dasharray: 3000; /* Valor alto para cobrir todo o desenho */
+    stroke-dashoffset: 3000; /* Começa escondido */
+    
+    /* 4. Dispara a animação */
+    animation: draw-logo 3s linear infinite;
+    
+    /* 5. Adiciona o brilho Neon */
+    filter: drop-shadow(0 0 8px #38bdf8);
+}
+
+/* Atraso leve nas letras para criar efeito de "Ícone -> Texto" */
+.logo-link:hover .text-part {
+    animation-delay: 0.5s; /* Começa meio segundo depois do ícone */
+}
+
+/* Animação do Traço */
+@keyframes draw-logo {
+    0% {
+        stroke-dashoffset: 3000; /* Totalmente fora */
+    }
+    40% {
+        fill: rgba(255, 255, 255, 0.05); /* Ainda transparente */
+    }
+    50% {
+        stroke-dashoffset: 0;    /* Traço completo */
+        fill: rgba(255, 255, 255, 0.2); /* Pisca um pouco de branco */
+    }
+    100% {
+        stroke-dashoffset: -3000; /* Sai pelo outro lado */
+    }
+}
+
+/* Ajuste Mobile */
+@media (max-width: 480px) {
+    .logo-link { width: 220px; }
 }
 
 /* --- ANDAR 2: CONTENT (CARD) --- */
