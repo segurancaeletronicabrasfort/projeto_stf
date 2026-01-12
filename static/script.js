@@ -6,6 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const isDashboard = path.includes("dashboard") || path.includes("dashboard.html");
 
     // --- HELPER: PARSE JWT SEGURO (UTF-8) ---
+    // Substitui o 'atob' simples para evitar erros com acentos e caracteres especiais
     function parseJwt(token) {
         try {
             const base64Url = token.split('.')[1];
@@ -165,10 +166,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 const user = await resp.json();
                 const nomeParaMostrar = user.full_name || user.username || "Usuário";
                 
-                // Exibe nome e cargo formatado
-                // const cargo = user.role.charAt(0).toUpperCase() + user.role.slice(1);
                 userDisplay.innerHTML = `Olá, ${nomeParaMostrar}`;
-                
                 localStorage.setItem("userFullName", nomeParaMostrar);
             } catch (err) {
                 const fallback = localStorage.getItem("userFullName") || localStorage.getItem("userName") || "Usuário";
@@ -177,9 +175,8 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         carregarNomeUsuario();
 
-        // --- 2.3 Controle de Acesso (RBAC) & Cards ---
+        // --- 2.3 Controle de Acesso (RBAC), Cards & POWER BI ---
         try {
-            // CORREÇÃO: Usando parseJwt em vez de atob direto para evitar bugs de acentuação
             const payload = parseJwt(token);
             
             if (payload) {
@@ -190,20 +187,63 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 // Elementos da tela
                 const adminArea = document.getElementById("adminArea");
-                const biSection = document.getElementById("biSection");
+                const biContainer = document.getElementById("biSection");
+
+                // ======================================================
+                // NOVA LÓGICA DE POWER BI SEGURO (BACKEND PROXY)
+                // ======================================================
+                async function loadPowerBI() {
+                    if (!biContainer) return;
+
+                    try {
+                        const response = await fetch("/bi-config", {
+                            method: "GET",
+                            headers: { "Authorization": `Bearer ${token}` }
+                        });
+
+                        if (response.ok) {
+                            const data = await response.json();
+                            
+                            // MUDANÇA AQUI: Ajuste de CSS para o tamanho ficar correto
+                            // 1. Forçamos o container a ter pelo menos 80% da altura da tela (80vh)
+                            // 2. Usamos aspect-ratio para manter formato widescreen (16/9)
+                            biContainer.style.display = "block";
+                            biContainer.style.height = "75vh"; // Ocupa 75% da altura da tela
+                            biContainer.style.minHeight = "600px"; // Garante que não fique minúsculo em telas pequenas
+                            
+                            biContainer.innerHTML = `
+                                <iframe title="Relatório BI" 
+                                    width="100%" 
+                                    height="100%" 
+                                    src="${data.embed_url}" 
+                                    frameborder="0" 
+                                    style="border: none; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);"
+                                    allowFullScreen="true">
+                                </iframe>
+                            `;
+                        } else {
+                            biContainer.style.display = "none";
+                            console.log("Acesso ao BI não autorizado.");
+                        }
+                    } catch (error) {
+                        console.error("Erro ao carregar BI:", error);
+                        biContainer.style.display = "none";
+                    }
+                }
 
                 // Lógica de Visibilidade
                 if (role === 'admin') {
                     if(adminArea) adminArea.style.display = "block";
-                    if(biSection) biSection.style.display = "block";
+                    loadPowerBI(); // Admin vê BI
                 } else if (role === 'supervisor') {
                     if(adminArea) adminArea.style.display = "none";
-                    if(biSection) biSection.style.display = "block";
+                    loadPowerBI(); // Supervisor vê BI
                 } else {
                     // SOLICITANTE: Não vê admin nem BI
                     if(adminArea) adminArea.style.display = "none";
-                    if(biSection) biSection.style.display = "none";
+                    if(biContainer) biContainer.style.display = "none";
                 }
+
             } else {
                 console.error("Token inválido ou corrompido.");
             }

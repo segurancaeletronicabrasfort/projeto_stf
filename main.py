@@ -255,6 +255,32 @@ async def update_user(
     logging.info(f"ADMIN AÇÃO: {current_user.username} atualizou {db_user.username}")
     return {"message": "Usuário atualizado com sucesso"}
 
+# --- ROTA DE POWER BI (PROTEGIDA) ---
+
+@app.get("/bi-config")
+async def get_bi_config(
+    current_user: User = Depends(get_current_user), # Verifica se tá logado
+    db: Session = Depends(get_db)
+):
+    """
+    Retorna a URL do Power BI apenas para usuários autorizados.
+    Correção Vuln. #4 (Power BI Exposto)
+    """
+    # Lista de cargos permitidos
+    allowed_roles = ["admin", "supervisor"]
+    
+    if current_user.role not in allowed_roles:
+        logging.warning(f"ACESSO NEGADO BI: Usuário {current_user.username} tentou acessar o BI.")
+        raise HTTPException(status_code=403, detail="Acesso não autorizado aos relatórios.")
+    
+    # Pega a URL do arquivo .env (Oculta do código fonte)
+    embed_url = os.getenv("POWERBI_EMBED_URL")
+    
+    if not embed_url:
+        raise HTTPException(status_code=500, detail="Configuração de BI ausente no servidor.")
+        
+    return {"embed_url": embed_url}
+
 @app.delete("/users/{user_id}")
 async def delete_user(
     user_id: int,
