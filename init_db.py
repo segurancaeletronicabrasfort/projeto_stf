@@ -6,13 +6,13 @@ from passlib.context import CryptContext
 Base.metadata.create_all(bind=engine)
 
 # Configuração de Hash
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+pwd_context = CryptContext(schemes=["argon2", "bcrypt"], deprecated="auto")
 
 def init_db():
     db = SessionLocal()
     
     # Verifica se já existe o usuário
-    user = db.query(User).filter(User.username == "danilo.vinicius").first()
+    user = db.query(User).filter(User.username == "Brasfort").first()
     if not user:
         print("Criando usuário admin...")
         hashed_password = pwd_context.hash("Braseg26")

@@ -19,8 +19,10 @@ services:
   db:
     image: postgres:15-alpine
     container_name: portal_abv_db
+    ports:
+      - "5432:5432"  # <--- ADICIONE ISSO AQUI
     volumes:
-      - postgres_data:/var/lib/postgresql/data # Isso garante que os dados fiquem salvos mesmo se desligar o PC
+      - postgres_data:/var/lib/postgresql/data
     environment:
       - POSTGRES_USER=abv_user
       - POSTGRES_PASSWORD=abv_senha_segura

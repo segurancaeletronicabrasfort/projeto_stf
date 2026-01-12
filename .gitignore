@@ -4,3 +4,4 @@ __pycache__/
 portal_abv.db
 env  <-- ADICIONE ISSO AQUI
 auditoria_acessos.log
+hacker_test.py
